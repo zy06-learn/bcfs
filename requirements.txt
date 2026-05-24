@@ -1,0 +1,13 @@
+torch
+transformers
+datasets
+evaluate
+rouge-score
+nltk
+pysbd
+pulp
+numpy
+bert-score
+matplotlib
+tqdm
+scikit-learn

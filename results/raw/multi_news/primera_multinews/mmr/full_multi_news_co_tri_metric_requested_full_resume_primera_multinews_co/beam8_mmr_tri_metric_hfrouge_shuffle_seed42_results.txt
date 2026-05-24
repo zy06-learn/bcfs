@@ -1,0 +1,73 @@
+Source mirror: /home/<redacted>/projects/NLP_ilp_dpp_mmr_experiment/outputs/multi_news/primera_multinews/mmr/full_multi_news_co_tri_metric_requested_full_resume_primera_multinews_co/beam8_mmr_tri_metric_hfrouge_shuffle_seed42_results.txt
+PRIMERA Beam-8 + MMR Summarization Results (Generate-then-Optimize)
+Generator: primera_multinews
+Method: mmr
+Objective variant: Tri-metric unified objective (ROUGE + MiniCheck + Redundancy)
+Model: allenai/PRIMERA-multinews
+Dataset: multi_news
+Split: test
+Samples: 5622
+Sample mode: shuffle
+Sample seed: 42
+Beam size: 8
+Budget: 8 sentences
+Runtime generation batch size: 2
+Runtime utility batch size: 32
+Runtime eval batch size: 64
+Runtime dtype: bf16
+ROUGE sentence split: nltk
+Ordering: source_similarity
+Stage output trace: /home/<redacted>/projects/NLP_ilp_dpp_mmr_experiment/outputs/multi_news/primera_multinews/mmr/full_multi_news_co_tri_metric_requested_full_resume_primera_multinews_co/beam8_mmr_tri_metric_hfrouge_shuffle_seed42_stage_outputs.jsonl
+Stage1 reuse source: /home/<redacted>/projects/NLP_ilp_dpp_mmr_experiment/outputs/multi_news/primera_multinews/ilp/full_multi_news_co_tri_metric_requested_full_resume_primera_multinews_co/beam8_ilp_tri_metric_hfrouge_shuffle_seed42_stage_outputs.jsonl
+Started at: 2026-05-11T08:59:03.842142
+Finished at: 2026-05-11T16:12:35.727729
+Runtime total seconds (this process): 26011.89
+Stage seconds: generation=15776.66 (cumulative across resumes), evaluation=10225.80
+Resume: resumed=False, resumed_from=0, prior_gen_seconds=0.00
+Eval suite: full
+ROUGE implementation: huggingface_evaluate
+DocSeparatorToken: <doc-sep>
+LenPenalty: None
+NoRepeatNgram: None
+EarlyStopping: None
+MaxDecode: None, MinDecode: None
+Tri-metric weights: rouge=0.100000, minicheck=0.200000, redundancy=0.700000
+Table Metrics: ['rouge', 'bertscore']
+Extra metrics: ['factcc', 'minicheck', 'alignscore', 'factgraph', 'factkb']
+ROUGE sentence split: nltk
+============================================================
+
+
+Table Metrics:
+ROUGE Scores (F1 only, impl=huggingface_evaluate):
+  rouge1    F1=41.18%
+  rouge2    F1=14.86%
+  rougeL    F1=20.98%
+  rougeLsum  F1=37.28%
+BERTScore (roberta-large):
+  Precision=86.34%  Recall=84.92%  F1=85.61%
+
+Extra Metrics:
+FactCC (manueldeprada/FactCC):
+  SentenceAvgCorrect: 33.82%
+MiniCheck (EMNLP 2024, MiniCheck-RoBERTa-Large):
+  SummaryAvgConsistent: 62.74%
+AlignScore (yzha/AlignScore-base, nli_sp):
+  SummaryAvg: 54.12%
+FactGraph: unavailable (FileNotFoundError('FACTGRAPH repo dir not configured. Set $FACTGRAPH_REPO_DIR or pass repo_dir explicitly. Clone <external-repository-url> first.'))
+FactKB (bunsenfeng/FactKB):
+  FactualProb: 87.72%
+
+Runtime:
+  StartedAt: 2026-05-11T08:59:03.842142
+  FinishedAt: 2026-05-11T16:12:35.727729
+  MethodTotalSeconds: 26011.89
+  GenerationSeconds: 15776.66
+  EvaluationSeconds: 10225.80
+  Resume: resumed=False, resumed_from=0, prior_generation_seconds=0.00
+  MetricSeconds: rouge=65.81s, bertscore=237.58s, factcc=357.04s, minicheck=5836.36s, alignscore=3663.98s, factgraph=0.00s, factkb=64.46s
+  COTimingSeconds:
+    Samples: 5622
+    Total: 15707.24s MeanPerSample: 2.793889s
+
+============================================================

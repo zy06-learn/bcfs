@@ -1,0 +1,74 @@
+Source mirror: /home/<redacted>/projects/NLP_ilp_dpp_mmr_experiment/outputs/multi_news/gemma4_e4b/baseline/full_multi_news_baseline_requested_full_resume_gemma_multinews_baseline/baseline_hfrouge_shuffle_seed42_results.txt
+gemma-4-E4B Baseline + BASELINE Summarization Results (Generate-then-Optimize)
+Generator: gemma_4_e4b
+Method: baseline
+Objective variant: Baseline from the generation backend
+Model: google/gemma-4-E4B-it
+Dataset: multi_news
+Split: test
+Samples: 5622
+Sample mode: shuffle
+Sample seed: 42
+Generation mode: direct baseline
+Budget: direct full output
+Runtime generation batch size: 8
+Runtime utility batch size: 12
+Runtime eval batch size: 12
+Runtime dtype: bf16
+ROUGE sentence split: nltk
+Ordering: none (baseline direct generation)
+Stage output trace: /home/<redacted>/projects/NLP_ilp_dpp_mmr_experiment/outputs/multi_news/gemma4_e4b/baseline/full_multi_news_baseline_requested_full_resume_gemma_multinews_baseline/baseline_hfrouge_shuffle_seed42_stage_outputs.jsonl
+Stage1 reuse source: None
+Started at: 2026-05-12T18:44:27.361869
+Finished at: 2026-05-13T12:56:06.813309
+Runtime total seconds (this process): 65499.45
+Stage seconds: generation=51939.04 (cumulative across resumes), evaluation=13299.02
+Resume: resumed=False, resumed_from=0, prior_gen_seconds=0.00
+Eval suite: full
+ROUGE implementation: huggingface_evaluate
+MaxInputTokens: 8192
+MaxNewTokens: 32768
+Temperature: 1.0
+TopP: 0.95
+TopK: 64
+MinP: 0.0
+PresencePenalty: 0.0
+RepetitionPenalty: 1.0
+Thinking: False
+DoSample: auto
+PromptVersion: multi_news_summary_only_v4
+Table Metrics: ['rouge', 'bertscore']
+Extra metrics: ['factcc', 'minicheck', 'alignscore', 'factgraph', 'factkb']
+ROUGE sentence split: nltk
+============================================================
+
+
+Table Metrics:
+ROUGE Scores (F1 only, impl=huggingface_evaluate):
+  rouge1    F1=35.44%
+  rouge2    F1=6.53%
+  rougeL    F1=16.27%
+  rougeLsum  F1=31.86%
+BERTScore (roberta-large):
+  Precision=85.42%  Recall=84.39%  F1=84.89%
+
+Extra Metrics:
+FactCC (manueldeprada/FactCC):
+  SentenceAvgCorrect: 48.49%
+MiniCheck: unavailable (ValueError('torch.cat(): expected a non-empty list of Tensors'))
+AlignScore (yzha/AlignScore-base, nli_sp):
+  SummaryAvg: 66.35%
+FactGraph: unavailable (FileNotFoundError('FACTGRAPH repo dir not configured. Set $FACTGRAPH_REPO_DIR or pass repo_dir explicitly. Clone <external-repository-url> first.'))
+FactKB (bunsenfeng/FactKB):
+  FactualProb: 87.68%
+
+Runtime:
+  StartedAt: 2026-05-12T18:44:27.361869
+  FinishedAt: 2026-05-13T12:56:06.813309
+  MethodTotalSeconds: 65499.45
+  GenerationSeconds: 51939.04
+  EvaluationSeconds: 13299.02
+  Resume: resumed=False, resumed_from=0, prior_generation_seconds=0.00
+  MetricSeconds: rouge=68.55s, bertscore=218.72s, factcc=509.08s, minicheck=7503.54s, alignscore=4932.52s, factgraph=0.00s, factkb=66.38s
+
+============================================================

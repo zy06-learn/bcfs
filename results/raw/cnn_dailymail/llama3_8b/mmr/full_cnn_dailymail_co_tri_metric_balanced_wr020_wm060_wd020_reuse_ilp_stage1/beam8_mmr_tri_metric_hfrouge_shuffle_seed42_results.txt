@@ -1,0 +1,79 @@
+Source mirror: /home/<redacted>/projects/NLP_ilp_dpp_mmr_experiment/outputs/cnn_dailymail/llama3_8b/mmr/full_cnn_dailymail_co_tri_metric_balanced_wr020_wm060_wd020_reuse_ilp_stage1/beam8_mmr_tri_metric_hfrouge_shuffle_seed42_results.txt
+Llama-3.1-8B-Instruct Candidates-8 + MMR Summarization Results (Generate-then-Optimize)
+Generator: llama3_8b
+Method: mmr
+Objective variant: Tri-metric unified objective (ROUGE + MiniCheck + Redundancy)
+Model: meta-llama/Llama-3.1-8B-Instruct
+Dataset: cnn_dailymail
+Split: test
+Samples: 11490
+Sample mode: shuffle
+Sample seed: 42
+Candidate count: 8
+Budget: 4 sentences
+Runtime generation batch size: 12
+Runtime utility batch size: 32
+Runtime eval batch size: 64
+Runtime dtype: bf16
+ROUGE sentence split: nltk
+Ordering: source_similarity
+Stage output trace: /home/<redacted>/projects/NLP_ilp_dpp_mmr_experiment/outputs/cnn_dailymail/llama3_8b/mmr/full_cnn_dailymail_co_tri_metric_balanced_wr020_wm060_wd020_reuse_ilp_stage1/beam8_mmr_tri_metric_hfrouge_shuffle_seed42_stage_outputs.jsonl
+Stage1 reuse source: /home/<redacted>/projects/NLP_ilp_dpp_mmr_experiment/outputs/cnn_dailymail/llama3_8b/ilp/full_cnn_dailymail_co_tri_metric_requested_full_resume_llama_cnn_co/beam8_ilp_tri_metric_hfrouge_shuffle_seed42_stage_outputs.jsonl
+Started at: 2026-05-09T19:50:12.872989
+Finished at: 2026-05-10T00:30:15.648522
+Runtime total seconds (this process): 16802.78
+Stage seconds: generation=10134.24 (cumulative across resumes), evaluation=6657.36
+Resume: resumed=False, resumed_from=0, prior_gen_seconds=0.00
+Eval suite: full
+ROUGE implementation: huggingface_evaluate
+MaxInputTokens: 8192
+MaxNewTokens: 32768
+Temperature: 0.6
+TopP: 0.9
+TopK: 0
+MinP: 0.0
+PresencePenalty: 0.0
+RepetitionPenalty: 1.0
+Thinking: False
+DoSample: auto
+PromptVersion: llama3_cnn_dailymail_concise_summary_only_v1
+Tri-metric weights: rouge=0.200000, minicheck=0.600000, redundancy=0.200000
+Table Metrics: ['rouge', 'bertscore']
+Extra metrics: ['factcc', 'minicheck', 'alignscore', 'factgraph', 'factkb']
+ROUGE sentence split: nltk
+============================================================
+
+
+Table Metrics:
+ROUGE Scores (F1 only, impl=huggingface_evaluate):
+  rouge1    F1=29.18%
+  rouge2    F1=6.14%
+  rougeL    F1=17.33%
+  rougeLsum  F1=25.53%
+BERTScore (roberta-large):
+  Precision=85.86%  Recall=85.51%  F1=85.68%
+
+Extra Metrics:
+FactCC (manueldeprada/FactCC):
+  SentenceAvgCorrect: 49.94%
+MiniCheck (EMNLP 2024, MiniCheck-RoBERTa-Large):
+  SummaryAvgConsistent: 83.69%
+AlignScore (yzha/AlignScore-base, nli_sp):
+  SummaryAvg: 77.52%
+FactGraph: unavailable (FileNotFoundError('FACTGRAPH repo dir not configured. Set $FACTGRAPH_REPO_DIR or pass repo_dir explicitly. Clone <external-repository-url> first.'))
+FactKB (bunsenfeng/FactKB):
+  FactualProb: 97.98%
+
+Runtime:
+  StartedAt: 2026-05-09T19:50:12.872989
+  FinishedAt: 2026-05-10T00:30:15.648522
+  MethodTotalSeconds: 16802.78
+  GenerationSeconds: 10134.24
+  EvaluationSeconds: 6657.36
+  Resume: resumed=False, resumed_from=0, prior_generation_seconds=0.00
+  MetricSeconds: rouge=41.17s, bertscore=189.22s, factcc=491.41s, minicheck=3508.62s, alignscore=2305.89s, factgraph=0.00s, factkb=120.70s
+  COTimingSeconds:
+    Samples: 11490
+    Total: 10094.28s MeanPerSample: 0.878528s
+
+============================================================

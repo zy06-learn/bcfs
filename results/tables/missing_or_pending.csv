@@ -1,0 +1,7 @@
+dataset,generator,method,item,status,next_action
+multi_news,llama3_8b,mmr,full result file,pending,run or locate the completed selector output before adding it to selected_rows.csv
+multi_news,llama3_8b,ilp,full result file,pending,run or locate the completed selector output before adding it to selected_rows.csv
+multi_news,llama3_8b,dpp,full result file,pending,run or locate the completed selector output before adding it to selected_rows.csv
+multi_news,qwen3.5_9B,baseline,MiniCheck metric,unavailable in source result,keep blank or rerun the metric separately
+multi_news,llama3_8b,baseline,MiniCheck metric,unavailable in source result,keep blank or rerun the metric separately
+multi_news,gemma_4_e4b,baseline,MiniCheck metric,unavailable in source result,keep blank or rerun the metric separately

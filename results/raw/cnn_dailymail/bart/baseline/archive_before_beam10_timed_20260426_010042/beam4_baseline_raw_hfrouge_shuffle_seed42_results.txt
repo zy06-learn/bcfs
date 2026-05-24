@@ -1,0 +1,59 @@
+Source mirror: /home/<redacted>/projects/NLP_generatesummary/bart/results/_archive_before_beam10_timed_20260426_010042/baseline_raw_baseline_raw/beam4_baseline_raw_hfrouge_shuffle_seed42_results.txt
+BART Beam-4 + BASELINE_RAW Summarization Results (Generate-then-Optimize)
+Method: baseline_raw
+Objective variant: Raw Baseline (Top-1 Beam, Full Output)
+Model: facebook/bart-large-cnn
+Dataset: cnn_dailymail (3.0.0)
+Split: test
+Samples: 11490
+Sample mode: shuffle
+Sample seed: 42
+Beam size: 4
+Budget: full output
+Runtime generation batch size: 24
+Runtime utility batch size: 128
+Runtime eval batch size: 64
+Runtime dtype: fp32
+Started at: 2026-04-19T04:49:08.369106
+Finished at: 2026-04-19T09:23:16.126581
+Runtime total seconds (this process): 16447.76
+Stage seconds: generation=10354.34 (cumulative across resumes), evaluation=6081.77
+Resume: resumed=False, resumed_from=0, prior_gen_seconds=0.00
+Eval suite: full
+ROUGE implementation: huggingface_evaluate
+LenPenalty: 2.0, NoRepeatNgram: 3, EarlyStopping: True
+MaxDecode: 142, MinDecode: 56
+ROUGE sentence split: pysbd
+============================================================
+
+
+Table Metrics:
+ROUGE Scores (F1 only, impl=huggingface_evaluate):
+  rouge1    F1=44.05%
+  rouge2    F1=21.07%
+  rougeL    F1=30.62%
+  rougeLsum  F1=40.99%
+BERTScore (roberta-large):
+  Precision=88.22%  Recall=88.22%  F1=88.21%
+
+Extra Metrics:
+FactCC (manueldeprada/FactCC):
+  SentenceAvgCorrect: 75.83%
+MiniCheck (EMNLP 2024, MiniCheck-RoBERTa-Large):
+  SummaryAvgConsistent: 94.90%
+AlignScore (alignment 2023, yzha/AlignScore-base, nli_sp):
+  SummaryAvg: 91.56%
+FactGraph: unavailable (FileNotFoundError('FACTGRAPH repo dir not configured. Set $FACTGRAPH_REPO_DIR or pass repo_dir explicitly. Clone <external-repository-url> first.'))
+FactKB (bunsenfeng/FactKB):
+  FactualProb: 98.49%
+
+Runtime:
+  StartedAt: 2026-04-19T04:49:08.369106
+  FinishedAt: 2026-04-19T09:23:16.126581
+  MethodTotalSeconds: 16447.76
+  GenerationSeconds: 10354.34
+  EvaluationSeconds: 6081.77
+  Resume: resumed=False, resumed_from=0, prior_generation_seconds=0.00
+  MetricSeconds: rouge=40.08s, bertscore=114.85s, factcc=461.34s, minicheck=3213.81s, alignscore=2131.11s, factgraph=0.00s, factkb=120.02s
+
+============================================================

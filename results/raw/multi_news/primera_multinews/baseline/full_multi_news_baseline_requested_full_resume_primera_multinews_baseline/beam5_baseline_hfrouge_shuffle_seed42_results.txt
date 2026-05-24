@@ -1,0 +1,69 @@
+Source mirror: /home/<redacted>/projects/NLP_ilp_dpp_mmr_experiment/outputs/multi_news/primera_multinews/baseline/full_multi_news_baseline_requested_full_resume_primera_multinews_baseline/beam5_baseline_hfrouge_shuffle_seed42_results.txt
+PRIMERA Beam-5 + BASELINE Summarization Results (Generate-then-Optimize)
+Generator: primera_multinews
+Method: baseline
+Objective variant: Baseline from the generation backend
+Model: allenai/PRIMERA-multinews
+Dataset: multi_news
+Split: test
+Samples: 5622
+Sample mode: shuffle
+Sample seed: 42
+Beam size: 5
+Budget: direct full output
+Runtime generation batch size: 2
+Runtime utility batch size: 8
+Runtime eval batch size: 8
+Runtime dtype: bf16
+ROUGE sentence split: nltk
+Ordering: none (baseline direct generation)
+Stage output trace: /home/<redacted>/projects/NLP_ilp_dpp_mmr_experiment/outputs/multi_news/primera_multinews/baseline/full_multi_news_baseline_requested_full_resume_primera_multinews_baseline/beam5_baseline_hfrouge_shuffle_seed42_stage_outputs.jsonl
+Stage1 reuse source: None
+Started at: 2026-05-10T00:30:20.561445
+Finished at: 2026-05-10T06:24:54.202060
+Runtime total seconds (this process): 21273.64
+Stage seconds: generation=11938.11 (cumulative across resumes), evaluation=9310.59
+Resume: resumed=False, resumed_from=0, prior_gen_seconds=0.00
+Eval suite: full
+ROUGE implementation: huggingface_evaluate
+DocSeparatorToken: <doc-sep>
+LenPenalty: 2.0
+NoRepeatNgram: 3
+EarlyStopping: True
+MaxDecode: 142, MinDecode: 56
+Table Metrics: ['rouge', 'bertscore']
+Extra metrics: ['factcc', 'minicheck', 'alignscore', 'factgraph', 'factkb']
+ROUGE sentence split: nltk
+============================================================
+
+
+Table Metrics:
+ROUGE Scores (F1 only, impl=huggingface_evaluate):
+  rouge1    F1=41.10%
+  rouge2    F1=15.88%
+  rougeL    F1=22.17%
+  rougeLsum  F1=37.30%
+BERTScore (roberta-large):
+  Precision=88.56%  Recall=85.30%  F1=86.89%
+
+Extra Metrics:
+FactCC (manueldeprada/FactCC):
+  SentenceAvgCorrect: 37.40%
+MiniCheck (EMNLP 2024, MiniCheck-RoBERTa-Large):
+  SummaryAvgConsistent: 63.06%
+AlignScore (yzha/AlignScore-base, nli_sp):
+  SummaryAvg: 53.30%
+FactGraph: unavailable (FileNotFoundError('FACTGRAPH repo dir not configured. Set $FACTGRAPH_REPO_DIR or pass repo_dir explicitly. Clone <external-repository-url> first.'))
+FactKB (bunsenfeng/FactKB):
+  FactualProb: 94.36%
+
+Runtime:
+  StartedAt: 2026-05-10T00:30:20.561445
+  FinishedAt: 2026-05-10T06:24:54.202060
+  MethodTotalSeconds: 21273.64
+  GenerationSeconds: 11938.11
+  EvaluationSeconds: 9310.59
+  Resume: resumed=False, resumed_from=0, prior_generation_seconds=0.00
+  MetricSeconds: rouge=50.39s, bertscore=161.57s, factcc=332.51s, minicheck=5497.88s, alignscore=3200.05s, factgraph=0.00s, factkb=67.97s
+
+============================================================

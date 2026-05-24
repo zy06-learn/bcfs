@@ -1,0 +1,63 @@
+Source mirror: /home/<redacted>/projects/NLP_generatesummary/bart/results/mmr_tri_metric/beam5_mmr_tri_metric_hfrouge_shuffle_seed42_results.txt
+BART Beam-5 + MMR Summarization Results (Generate-then-Optimize)
+Method: mmr
+Objective variant: Tri-metric unified objective (ROUGE + MiniCheck + Redundancy)
+Model: facebook/bart-large-cnn
+Dataset: cnn_dailymail (3.0.0)
+Split: test
+Samples: 11490
+Sample mode: shuffle
+Sample seed: 42
+Beam size: 5
+Budget: 4 sentences
+Runtime generation batch size: 12
+Runtime utility batch size: 128
+Runtime eval batch size: 64
+Runtime dtype: bf16
+Started at: 2026-04-27T22:48:12.089944
+Finished at: 2026-04-28T04:12:37.963212
+Runtime total seconds (this process): 19465.87
+Stage seconds: generation=12886.35 (cumulative across resumes), evaluation=6571.96
+Resume: resumed=False, resumed_from=0, prior_gen_seconds=0.00
+Eval suite: full
+ROUGE implementation: huggingface_evaluate
+LenPenalty: 2.0, NoRepeatNgram: 3, EarlyStopping: True
+MaxDecode: 142, MinDecode: 56
+Tri-metric weights: rouge=0.000000, minicheck=0.500000, redundancy=0.500000
+ROUGE sentence split: pysbd
+============================================================
+
+
+Table Metrics:
+ROUGE Scores (F1 only, impl=huggingface_evaluate):
+  rouge1    F1=41.85%
+  rouge2    F1=19.44%
+  rougeL    F1=28.03%
+  rougeLsum  F1=38.99%
+BERTScore (roberta-large):
+  Precision=87.69%  Recall=87.84%  F1=87.75%
+
+Extra Metrics:
+FactCC (manueldeprada/FactCC):
+  SentenceAvgCorrect: 76.55%
+MiniCheck (EMNLP 2024, MiniCheck-RoBERTa-Large):
+  SummaryAvgConsistent: 96.22%
+AlignScore (yzha/AlignScore-base, nli_sp):
+  SummaryAvg: 92.42%
+FactGraph: unavailable (FileNotFoundError('FACTGRAPH repo dir not configured. Set $FACTGRAPH_REPO_DIR or pass repo_dir explicitly. Clone <external-repository-url> first.'))
+FactKB (bunsenfeng/FactKB):
+  FactualProb: 98.67%
+
+Runtime:
+  StartedAt: 2026-04-27T22:48:12.089944
+  FinishedAt: 2026-04-28T04:12:37.963212
+  MethodTotalSeconds: 19465.87
+  GenerationSeconds: 12886.35
+  EvaluationSeconds: 6571.96
+  Resume: resumed=False, resumed_from=0, prior_generation_seconds=0.00
+  MetricSeconds: rouge=41.39s, bertscore=167.40s, factcc=502.20s, minicheck=3440.38s, alignscore=2299.52s, factgraph=0.00s, factkb=120.56s
+  COTimingSeconds:
+    Samples: 11490
+    Total: 6865.37s MeanPerSample: 0.597509s
+
+============================================================
