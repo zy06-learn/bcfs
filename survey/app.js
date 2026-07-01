@@ -14,6 +14,7 @@ let currentAnnotator = "";
 let assignedItems = [];
 let currentIndex = 0;
 let responses = {};
+let isSubmitting = false;
 
 const $ = (id) => document.getElementById(id);
 
@@ -55,13 +56,13 @@ function saveResponses() {
   localStorage.setItem(storageKey(), JSON.stringify(responses));
 }
 
-function showStatus(message) {
+function showStatus(message, timeout = 3500) {
   $("statusMessage").textContent = message;
   if (!message) return;
   window.clearTimeout(showStatus.timeoutId);
   showStatus.timeoutId = window.setTimeout(() => {
     $("statusMessage").textContent = "";
-  }, 3500);
+  }, timeout);
 }
 
 function isComplete(response) {
@@ -76,6 +77,10 @@ function isComplete(response) {
 
 function completedCount() {
   return assignedItems.filter((item) => isComplete(responses[item.eval_id])).length;
+}
+
+function firstIncompleteIndex() {
+  return assignedItems.findIndex((item) => !isComplete(responses[item.eval_id]));
 }
 
 function buildRatings(containerId, side) {
@@ -193,7 +198,7 @@ function renderProgress() {
   const total = assignedItems.length;
   $("progressCount").textContent = `${done} / ${total}`;
   $("progressBar").style.width = total ? `${(done / total) * 100}%` : "0";
-  $("submitButton").disabled = !currentAnnotator || done !== total;
+  $("submitButton").disabled = !currentAnnotator || isSubmitting;
 }
 
 function chooseAnnotator(annotator) {
@@ -297,10 +302,17 @@ async function submitResponses() {
   if (!currentAnnotator) return;
   const done = completedCount();
   if (done !== assignedItems.length) {
-    showStatus(`Submit blocked: finish all ${assignedItems.length} items first.`);
+    const missing = assignedItems.length - done;
+    const incompleteIndex = firstIncompleteIndex();
+    if (incompleteIndex >= 0) {
+      currentIndex = incompleteIndex;
+      renderCurrentItem();
+    }
+    showStatus(`Cannot submit yet: ${missing} item${missing === 1 ? "" : "s"} incomplete.`, 8000);
     return;
   }
 
+  isSubmitting = true;
   $("submitButton").disabled = true;
   showStatus("Submitting responses...");
   try {
@@ -317,10 +329,11 @@ async function submitResponses() {
       throw new Error(result.error || `HTTP ${response.status}`);
     }
     localStorage.setItem(`${storageKey()}_submitted_at`, new Date().toISOString());
-    showStatus(`Submitted ${result.saved_count} responses. You can close this page.`);
+    showStatus(`Submitted ${result.saved_count} responses. You can close this page.`, 10000);
   } catch (error) {
-    showStatus(`Submit failed: ${error.message}. Use Export CSV as backup.`);
+    showStatus(`Submit failed: ${error.message}. Use Export CSV as backup.`, 12000);
   } finally {
+    isSubmitting = false;
     renderProgress();
   }
 }
