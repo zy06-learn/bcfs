@@ -82,7 +82,9 @@ h3 {
 }
 
 button,
-select {
+select,
+input[type="text"],
+#reviewerInput {
   min-height: 36px;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -225,6 +227,11 @@ button:disabled {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--surface);
+}
+
+.original-response {
+  border-color: #99f6e4;
+  background: #f0fdfa;
 }
 
 .long-text,

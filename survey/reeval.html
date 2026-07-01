@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Summary Evaluation Recheck</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Summary Evaluation Recheck</h1>
+        <p id="annotatorLabel">Select an annotator to re-evaluate submitted items.</p>
+      </div>
+      <div class="top-actions">
+        <input id="reviewerInput" aria-label="Reviewer" placeholder="reviewer_01" />
+        <select id="annotatorSelect" aria-label="Annotator"></select>
+        <button id="copyLinkButton" type="button">Copy Link</button>
+        <button id="submitButton" class="primary-button" type="button">Save Recheck</button>
+        <button id="exportButton" class="secondary-button" type="button">Export CSV</button>
+      </div>
+      <div id="statusMessage" class="status-message" aria-live="polite"></div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar">
+        <div class="progress-block">
+          <div class="progress-count" id="progressCount">0 / 0</div>
+          <div class="progress-track"><div id="progressBar"></div></div>
+        </div>
+        <nav id="itemNav" class="item-nav" aria-label="Submitted items"></nav>
+      </aside>
+
+      <section class="workspace">
+        <div id="emptyState" class="empty-state">
+          Choose an annotator ID from the top right menu.
+        </div>
+
+        <form id="surveyForm" class="survey-form hidden">
+          <div class="item-head">
+            <div>
+              <div id="itemMeta" class="meta"></div>
+              <h2 id="itemTitle"></h2>
+            </div>
+            <div class="nav-actions">
+              <button id="prevButton" type="button">Previous</button>
+              <button id="nextButton" type="button">Next</button>
+            </div>
+          </div>
+
+          <section class="text-section original-response">
+            <h3>Original Submitted Choice</h3>
+            <div id="originalChoice" class="summary-text"></div>
+          </section>
+
+          <section class="text-section">
+            <h3>Source Article</h3>
+            <div id="sourceText" class="long-text"></div>
+          </section>
+
+          <section class="text-section">
+            <h3>Reference Summary</h3>
+            <div id="referenceSummary" class="summary-text"></div>
+          </section>
+
+          <div class="summary-grid">
+            <section class="text-section">
+              <h3>Summary A</h3>
+              <div id="summaryA" class="summary-text"></div>
+            </section>
+            <section class="text-section">
+              <h3>Summary B</h3>
+              <div id="summaryB" class="summary-text"></div>
+            </section>
+          </div>
+
+          <section class="rating-section">
+            <h3>Recheck Pairwise Preference</h3>
+            <div class="choice-row">
+              <label><input type="radio" name="reeval_preference" value="A_better" /> A better</label>
+              <label><input type="radio" name="reeval_preference" value="B_better" /> B better</label>
+              <label><input type="radio" name="reeval_preference" value="same" /> Same</label>
+              <label><input type="radio" name="reeval_preference" value="not_sure" /> Not sure</label>
+            </div>
+          </section>
+
+          <section class="rating-section">
+            <h3>Optional: Re-rate Summary A</h3>
+            <div id="ratingsA" class="ratings"></div>
+          </section>
+
+          <section class="rating-section">
+            <h3>Optional: Re-rate Summary B</h3>
+            <div id="ratingsB" class="ratings"></div>
+          </section>
+
+          <section class="rating-section">
+            <h3>Optional Recheck Comment</h3>
+            <textarea id="comment" rows="3" placeholder="Optional notes for the recheck."></textarea>
+          </section>
+        </form>
+      </section>
+    </main>
+
+    <script src="reeval.js?v=0003"></script>
+  </body>
+</html>

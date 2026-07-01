@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { ASSIGNMENTS } from "../worker/survey_data.js";
-import { validateAnnotatorSubmission, validateResponse } from "../worker/index.js";
+import { validateAnnotatorSubmission, validateReevaluation, validateResponse } from "../worker/index.js";
 
 const annotatorId = "annotator_01";
 const evalId = ASSIGNMENTS[annotatorId][0];
@@ -34,6 +34,24 @@ assert.equal(
 assert.equal(validateResponse({ ...validRow, eval_id: "missing" }).ok, false);
 assert.equal(validateResponse({ ...validRow, preference: "invalid" }).ok, false);
 assert.equal(validateResponse({ ...validRow, A_consistency: "6" }).ok, false);
+assert.equal(
+  validateReevaluation({
+    reviewer_id: "reviewer_01",
+    original_annotator_id: annotatorId,
+    eval_id: evalId,
+    reeval_preference: "B_better",
+  }).ok,
+  true
+);
+assert.equal(
+  validateReevaluation({
+    reviewer_id: "reviewer_01",
+    original_annotator_id: annotatorId,
+    eval_id: evalId,
+    reeval_preference: "invalid",
+  }).ok,
+  false
+);
 
 const otherAnnotator = "annotator_02";
 const otherEvalId = ASSIGNMENTS[otherAnnotator].find((candidate) => !ASSIGNMENTS[annotatorId].includes(candidate));
