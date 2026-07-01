@@ -45,6 +45,23 @@ Send one link to each annotator. Each annotator exports a CSV after finishing.
 - Min annotations per item: 3
 - Max annotations per item: 3
 
+## GitHub Pages Deployment
+
+The workflow `.github/workflows/deploy-survey-pages.yml` deploys this folder as
+the Pages artifact. If the workflow fails at `Configure Pages` with
+`Resource not accessible by integration`, a repo owner/admin must enable Pages
+once:
+
+1. Open `https://github.com/zy06-learn/bcfs/settings/pages`.
+2. Set Source to `GitHub Actions`.
+3. Save the setting.
+4. Re-run `Deploy Human-Eval Survey Pages` from the Actions tab, or push another
+   small commit to `main`.
+
+After it succeeds, the survey root is:
+
+`https://zy06-learn.github.io/bcfs/`
+
 ## Response Collection
 
 Ask every annotator to download and send back their response CSV. The public
