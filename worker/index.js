@@ -129,18 +129,23 @@ export function validateAnnotatorSubmission(payload, validated) {
 
   const missing = expected.filter((evalId) => !submittedSet.has(evalId));
   const extra = submitted.filter((evalId) => !expected.includes(evalId));
-  if (missing.length || extra.length || submitted.length !== expected.length) {
+  if (extra.length) {
     return {
       ok: false,
-      error: "incomplete_annotator_submission",
-      missing,
+      error: "invalid_annotator_submission",
       extra,
       expected_count: expected.length,
       submitted_count: submitted.length,
     };
   }
 
-  return { ok: true, annotator_id: annotatorId };
+  return {
+    ok: true,
+    annotator_id: annotatorId,
+    missing,
+    expected_count: expected.length,
+    submitted_count: submitted.length,
+  };
 }
 
 async function saveResponses(request, env) {
@@ -203,6 +208,9 @@ async function saveResponses(request, env) {
     ok: true,
     saved_count: validated.length,
     annotator_id: submission.annotator_id,
+    expected_count: submission.expected_count,
+    submitted_count: submission.submitted_count,
+    remaining_count: submission.missing.length,
   });
 }
 

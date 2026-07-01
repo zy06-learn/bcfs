@@ -42,7 +42,7 @@ assert.equal(
 );
 assert.equal(
   validateAnnotatorSubmission({ annotator_id: annotatorId, responses: completeRows.slice(1) }, completeRows.slice(1)).ok,
-  false
+  true
 );
 assert.equal(
   validateAnnotatorSubmission({ annotator_id: annotatorId, responses: completeRows }, [

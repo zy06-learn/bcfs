@@ -274,7 +274,7 @@ function exportCsv() {
 }
 
 function buildSubmissionRows() {
-  return assignedItems.map((item) => {
+  return assignedItems.filter((item) => isComplete(responses[item.eval_id])).map((item) => {
     const response = responses[item.eval_id] || {};
     return {
       annotator_id: currentAnnotator,
@@ -300,28 +300,27 @@ function buildSubmissionRows() {
 async function submitResponses() {
   collectFormResponse();
   if (!currentAnnotator) return;
-  const done = completedCount();
-  if (done !== assignedItems.length) {
-    const missing = assignedItems.length - done;
+  const submissionRows = buildSubmissionRows();
+  if (!submissionRows.length) {
     const incompleteIndex = firstIncompleteIndex();
     if (incompleteIndex >= 0) {
       currentIndex = incompleteIndex;
       renderCurrentItem();
     }
-    showStatus(`Cannot submit yet: ${missing} item${missing === 1 ? "" : "s"} incomplete.`, 8000);
+    showStatus("Cannot submit yet: no completed items. Finish this pair first.", 8000);
     return;
   }
 
   isSubmitting = true;
   $("submitButton").disabled = true;
-  showStatus("Submitting responses...");
+  showStatus(`Submitting ${submissionRows.length} completed response${submissionRows.length === 1 ? "" : "s"}...`);
   try {
     const response = await fetch(`${API_BASE_URL}/api/responses`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         annotator_id: currentAnnotator,
-        responses: buildSubmissionRows(),
+        responses: submissionRows,
       }),
     });
     const result = await response.json();
@@ -329,7 +328,15 @@ async function submitResponses() {
       throw new Error(result.error || `HTTP ${response.status}`);
     }
     localStorage.setItem(`${storageKey()}_submitted_at`, new Date().toISOString());
-    showStatus(`Submitted ${result.saved_count} responses. You can close this page.`, 10000);
+    const remaining = assignedItems.length - completedCount();
+    if (remaining) {
+      showStatus(
+        `Submitted ${result.saved_count} completed response${result.saved_count === 1 ? "" : "s"}. ${remaining} item${remaining === 1 ? "" : "s"} still incomplete.`,
+        10000
+      );
+    } else {
+      showStatus(`Submitted all ${result.saved_count} responses. You can close this page.`, 10000);
+    }
   } catch (error) {
     showStatus(`Submit failed: ${error.message}. Use Export CSV as backup.`, 12000);
   } finally {
