@@ -31,6 +31,19 @@ def decode_preference(preference: str, key_row: dict[str, str]) -> str:
     return ""
 
 
+def swap_source(source: str) -> str:
+    if source == "baseline":
+        return "co"
+    if source == "co":
+        return "baseline"
+    return source
+
+
+def source_for_side(key_row: dict[str, str], side: str, swap_sources: bool) -> str:
+    source = key_row[f"summary_{side}_source"]
+    return swap_source(source) if swap_sources else source
+
+
 def preferred_summary_label(preference: str) -> str:
     if preference == "A_better":
         return "summary_A"
@@ -49,6 +62,11 @@ def main() -> int:
     parser.add_argument("--responses_csv")
     parser.add_argument("--blind_key", default="outputs/human_eval_pairs/human_eval_100_pairs_blind_key.jsonl")
     parser.add_argument("--out_csv", default="outputs/human_eval_pairs/merged_survey_responses.csv")
+    parser.add_argument(
+        "--swap_sources",
+        action="store_true",
+        help="Decode A/B with baseline and CO labels swapped, preserving raw A/B responses.",
+    )
     args = parser.parse_args()
     if not args.responses_dir and not args.responses_csv:
         parser.error("one of --responses_dir or --responses_csv is required")
@@ -69,13 +87,19 @@ def main() -> int:
                     row["decoded_preference"] = ""
                     row["decode_error"] = "missing_eval_id_in_key"
                 else:
-                    row["summary_A_source"] = key_row["summary_A_source"]
-                    row["summary_B_source"] = key_row["summary_B_source"]
-                    row["summary_A_owner"] = key_row["summary_A_source"]
-                    row["summary_B_owner"] = key_row["summary_B_source"]
+                    decoded_key = {
+                        **key_row,
+                        "summary_A_source": source_for_side(key_row, "A", args.swap_sources),
+                        "summary_B_source": source_for_side(key_row, "B", args.swap_sources),
+                    }
+                    row["summary_A_source"] = decoded_key["summary_A_source"]
+                    row["summary_B_source"] = decoded_key["summary_B_source"]
+                    row["summary_A_owner"] = decoded_key["summary_A_source"]
+                    row["summary_B_owner"] = decoded_key["summary_B_source"]
                     row["preferred_summary_label"] = preferred_summary_label(row.get("preference", ""))
-                    row["preferred_summary_owner"] = decode_preference(row.get("preference", ""), key_row)
-                    row["decoded_preference"] = decode_preference(row.get("preference", ""), key_row)
+                    row["preferred_summary_owner"] = decode_preference(row.get("preference", ""), decoded_key)
+                    row["decoded_preference"] = decode_preference(row.get("preference", ""), decoded_key)
+                    row["label_correction"] = "baseline_co_swapped" if args.swap_sources else ""
                     row["decode_error"] = ""
                 row["response_file"] = str(path)
                 rows.append(row)
@@ -96,6 +120,7 @@ def main() -> int:
         "preferred_summary_label",
         "preferred_summary_owner",
         "decoded_preference",
+        "label_correction",
         "A_consistency",
         "A_currency",
         "A_relevance",
