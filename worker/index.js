@@ -60,7 +60,10 @@ function normalizePayload(payload) {
   return { annotator_id: payload?.annotator_id || "", responses: [payload] };
 }
 
-function toScore(value) {
+function toOptionalScore(value) {
+  if (value == null || value === "") {
+    return null;
+  }
   const numberValue = Number(value);
   if (!Number.isInteger(numberValue) || numberValue < 1 || numberValue > 5) {
     return null;
@@ -97,8 +100,8 @@ export function validateResponse(row) {
   for (const side of ["A", "B"]) {
     for (const dimension of DIMENSIONS) {
       const field = `${side}_${dimension}`;
-      const score = toScore(row?.[field]);
-      if (score == null) {
+      const score = toOptionalScore(row?.[field]);
+      if (score == null && row?.[field] != null && row?.[field] !== "") {
         return { ok: false, error: `invalid ${field} for ${evalId}` };
       }
       normalized[field] = score;

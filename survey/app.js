@@ -66,13 +66,7 @@ function showStatus(message, timeout = 3500) {
 }
 
 function isComplete(response) {
-  if (!response || !response.preference) return false;
-  for (const side of ["A", "B"]) {
-    for (const dimension of dimensions) {
-      if (!response[`${side}_${dimension.id}`]) return false;
-    }
-  }
-  return true;
+  return Boolean(response?.preference);
 }
 
 function completedCount() {

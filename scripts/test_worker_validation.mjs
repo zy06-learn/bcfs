@@ -23,6 +23,14 @@ const validRow = {
 };
 
 assert.equal(validateResponse(validRow).ok, true);
+assert.equal(
+  validateResponse({
+    annotator_id: annotatorId,
+    eval_id: evalId,
+    preference: "A_better",
+  }).ok,
+  true
+);
 assert.equal(validateResponse({ ...validRow, eval_id: "missing" }).ok, false);
 assert.equal(validateResponse({ ...validRow, preference: "invalid" }).ok, false);
 assert.equal(validateResponse({ ...validRow, A_consistency: "6" }).ok, false);
