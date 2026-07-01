@@ -165,6 +165,8 @@ function renderCurrentItem() {
     $("emptyState").textContent = currentAnnotator
       ? "All assigned items have been submitted for this annotator."
       : "No assigned items found for this annotator.";
+    renderNav();
+    renderProgress();
     return;
   }
   $("emptyState").classList.add("hidden");
@@ -205,7 +207,8 @@ function renderProgress() {
   const total = assignedItems.length;
   $("progressCount").textContent = `${done} / ${total}`;
   $("progressBar").style.width = total ? `${(done / total) * 100}%` : "0";
-  $("submitButton").disabled = !currentAnnotator || isSubmitting;
+  $("submitButton").disabled = !currentAnnotator || !assignedItems.length || isSubmitting;
+  $("exportButton").disabled = !currentAnnotator || !assignedItems.length;
 }
 
 async function fetchSubmittedEvalIds(annotator) {
@@ -232,7 +235,8 @@ async function chooseAnnotator(annotator) {
     try {
       submittedEvalIds = await fetchSubmittedEvalIds(annotator);
     } catch (error) {
-      showStatus(`${error.message}. Showing local remaining items only.`, 10000);
+      submittedEvalIds = new Set(assignments[annotator] || []);
+      showStatus(`${error.message}. Refresh before editing this annotator.`, 10000);
     }
   }
   assignedItems = (assignments[annotator] || [])
