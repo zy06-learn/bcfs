@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { ASSIGNMENTS } from "../worker/survey_data.js";
-import { validateResponse } from "../worker/index.js";
+import { validateAnnotatorSubmission, validateResponse } from "../worker/index.js";
 
 const annotatorId = "annotator_01";
 const evalId = ASSIGNMENTS[annotatorId][0];
@@ -30,5 +30,30 @@ assert.equal(validateResponse({ ...validRow, A_consistency: "6" }).ok, false);
 const otherAnnotator = "annotator_02";
 const otherEvalId = ASSIGNMENTS[otherAnnotator].find((candidate) => !ASSIGNMENTS[annotatorId].includes(candidate));
 assert.equal(validateResponse({ ...validRow, eval_id: otherEvalId }).ok, false);
+
+function rowFor(annotator_id, eval_id) {
+  return validateResponse({ ...validRow, annotator_id, eval_id }).response;
+}
+
+const completeRows = ASSIGNMENTS[annotatorId].map((assignedEvalId) => rowFor(annotatorId, assignedEvalId));
+assert.equal(
+  validateAnnotatorSubmission({ annotator_id: annotatorId, responses: completeRows }, completeRows).ok,
+  true
+);
+assert.equal(
+  validateAnnotatorSubmission({ annotator_id: annotatorId, responses: completeRows.slice(1) }, completeRows.slice(1)).ok,
+  false
+);
+assert.equal(
+  validateAnnotatorSubmission({ annotator_id: annotatorId, responses: completeRows }, [
+    ...completeRows.slice(0, -1),
+    completeRows[0],
+  ]).ok,
+  false
+);
+assert.equal(
+  validateAnnotatorSubmission({ annotator_id: otherAnnotator, responses: completeRows }, completeRows).ok,
+  false
+);
 
 console.log("worker_validation_ok");

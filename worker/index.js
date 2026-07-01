@@ -55,9 +55,9 @@ function isAllowedOrigin(request) {
 }
 
 function normalizePayload(payload) {
-  if (Array.isArray(payload)) return { responses: payload };
+  if (Array.isArray(payload)) return { annotator_id: "", responses: payload };
   if (Array.isArray(payload?.responses)) return payload;
-  return { responses: [payload] };
+  return { annotator_id: payload?.annotator_id || "", responses: [payload] };
 }
 
 function toScore(value) {
@@ -108,6 +108,41 @@ export function validateResponse(row) {
   return { ok: true, response: normalized };
 }
 
+export function validateAnnotatorSubmission(payload, validated) {
+  const annotatorId = String(payload?.annotator_id || "");
+  if (!annotatorId || !ASSIGNMENTS[annotatorId]) {
+    return { ok: false, error: `unknown annotator_id: ${annotatorId}` };
+  }
+  if (!validated.length) {
+    return { ok: false, error: "empty_responses" };
+  }
+  if (validated.some((row) => row.annotator_id !== annotatorId)) {
+    return { ok: false, error: "responses_must_match_payload_annotator_id" };
+  }
+
+  const expected = ASSIGNMENTS[annotatorId];
+  const submitted = validated.map((row) => row.eval_id);
+  const submittedSet = new Set(submitted);
+  if (submittedSet.size !== submitted.length) {
+    return { ok: false, error: "duplicate_eval_id_in_submission" };
+  }
+
+  const missing = expected.filter((evalId) => !submittedSet.has(evalId));
+  const extra = submitted.filter((evalId) => !expected.includes(evalId));
+  if (missing.length || extra.length || submitted.length !== expected.length) {
+    return {
+      ok: false,
+      error: "incomplete_annotator_submission",
+      missing,
+      extra,
+      expected_count: expected.length,
+      submitted_count: submitted.length,
+    };
+  }
+
+  return { ok: true, annotator_id: annotatorId };
+}
+
 async function saveResponses(request, env) {
   if (!isAllowedOrigin(request)) {
     return jsonResponse(request, { ok: false, error: "origin_not_allowed" }, 403);
@@ -129,8 +164,9 @@ async function saveResponses(request, env) {
     validated.push(result.response);
   }
 
-  if (!validated.length) {
-    return jsonResponse(request, { ok: false, error: "empty_responses" }, 400);
+  const submission = validateAnnotatorSubmission(payload, validated);
+  if (!submission.ok) {
+    return jsonResponse(request, { ok: false, ...submission }, 400);
   }
 
   const sql = `
@@ -166,7 +202,7 @@ async function saveResponses(request, env) {
   return jsonResponse(request, {
     ok: true,
     saved_count: validated.length,
-    annotator_id: validated[0].annotator_id,
+    annotator_id: submission.annotator_id,
   });
 }
 
@@ -194,9 +230,16 @@ async function exportCsv(request, env) {
 
 async function health(request, env) {
   const row = await env.DB.prepare("SELECT COUNT(*) AS count FROM survey_responses").first();
+  const completed = await env.DB.prepare(
+    "SELECT annotator_id, COUNT(*) AS count FROM survey_responses GROUP BY annotator_id"
+  ).all();
+  const completedAnnotators = completed.results.filter(
+    (result) => result.count === ASSIGNMENTS[result.annotator_id]?.length
+  ).length;
   return jsonResponse(request, {
     ok: true,
     response_count: row?.count || 0,
+    completed_annotator_count: completedAnnotators,
     assigned_response_count: Object.values(ASSIGNMENTS).reduce((sum, ids) => sum + ids.length, 0),
   });
 }
