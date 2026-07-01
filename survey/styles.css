@@ -99,6 +99,22 @@ button:hover {
   border-color: var(--accent);
 }
 
+.primary-button {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.primary-button:hover {
+  border-color: #134e4a;
+  background: #134e4a;
+}
+
+.secondary-button {
+  color: var(--muted);
+}
+
 button:disabled {
   cursor: not-allowed;
   opacity: 0.45;

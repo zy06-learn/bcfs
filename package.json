@@ -1,0 +1,14 @@
+{
+  "type": "module",
+  "scripts": {
+    "survey:build": "python3 scripts/build_survey_package.py --blind_csv outputs/human_eval_pairs/human_eval_100_pairs_blind.csv --out_dir survey --annotators 20 --annotations_per_item 1 --seed 42 --worker_data worker/survey_data.js",
+    "worker:test": "node scripts/test_worker_validation.mjs",
+    "worker:dev": "npx wrangler dev",
+    "worker:deploy": "npx wrangler deploy",
+    "d1:migrate:local": "npx wrangler d1 migrations apply bcfs_survey_responses --local",
+    "d1:migrate:remote": "npx wrangler d1 migrations apply bcfs_survey_responses --remote"
+  },
+  "devDependencies": {
+    "wrangler": "^4.106.0"
+  }
+}

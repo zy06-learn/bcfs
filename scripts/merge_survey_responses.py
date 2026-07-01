@@ -33,13 +33,20 @@ def decode_preference(preference: str, key_row: dict[str, str]) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--responses_dir", required=True)
+    parser.add_argument("--responses_dir")
+    parser.add_argument("--responses_csv")
     parser.add_argument("--blind_key", default="outputs/human_eval_pairs/human_eval_100_pairs_blind_key.jsonl")
     parser.add_argument("--out_csv", default="outputs/human_eval_pairs/merged_survey_responses.csv")
     args = parser.parse_args()
+    if not args.responses_dir and not args.responses_csv:
+        parser.error("one of --responses_dir or --responses_csv is required")
 
     key = load_key(Path(args.blind_key))
-    response_files = sorted(Path(args.responses_dir).glob("*.csv"))
+    response_files: list[Path] = []
+    if args.responses_dir:
+        response_files.extend(sorted(Path(args.responses_dir).glob("*.csv")))
+    if args.responses_csv:
+        response_files.append(Path(args.responses_csv))
     rows: list[dict[str, str]] = []
     for path in response_files:
         with path.open(newline="", encoding="utf-8") as handle:
@@ -81,6 +88,7 @@ def main() -> int:
         "B_conciseness",
         "comment",
         "updated_at",
+        "submitted_at",
         "decode_error",
     ]
     with out_path.open("w", newline="", encoding="utf-8") as handle:

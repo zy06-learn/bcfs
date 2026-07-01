@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bcfs-survey-api",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-07-01",
+  "workers_dev": true,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "bcfs_survey_responses",
+      "database_id": "ee439484-9b21-408b-924d-b5d987e83471",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

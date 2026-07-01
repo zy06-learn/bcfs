@@ -1,6 +1,13 @@
 # Human Evaluation Survey
 
-This folder contains a static browser survey for pairwise summary evaluation.
+This folder contains the public browser survey for pairwise summary evaluation.
+Responses are submitted to the Cloudflare Worker API and can still be exported
+as CSV from the browser as a backup.
+
+Worker API:
+
+- Health: `https://bcfs-survey-api.zywang.workers.dev/api/health`
+- Export CSV: `https://bcfs-survey-api.zywang.workers.dev/api/export.csv`
 
 ## Local Test
 
@@ -40,35 +47,37 @@ Send one link to each annotator. Each annotator exports a CSV after finishing.
 
 - Items: 100
 - Annotators: 20
-- Annotations per item: 3
-- Total item assignments: 300
-- Min annotations per item: 3
-- Max annotations per item: 3
-
-## GitHub Pages Deployment
-
-The workflow `.github/workflows/deploy-survey-pages.yml` deploys this folder as
-the Pages artifact. If the workflow fails at `Configure Pages` with
-`Resource not accessible by integration`, a repo owner/admin must enable Pages
-once:
-
-1. Open `https://github.com/zy06-learn/bcfs/settings/pages`.
-2. Set Source to `GitHub Actions`.
-3. Save the setting.
-4. Re-run `Deploy Human-Eval Survey Pages` from the Actions tab, or push another
-   small commit to `main`.
-
-After it succeeds, the survey root is:
-
-`https://zy06-learn.github.io/bcfs/`
+- Annotations per item: 1
+- Total item assignments: 100
+- Min annotations per item: 1
+- Max annotations per item: 1
 
 ## Response Collection
 
-Ask every annotator to download and send back their response CSV. The public
-site includes only blind survey items and assignments. Keep the original blind
-key file private to the project owner.
+The primary collection path is automatic: annotators fill all assigned items and
+click `Submit`. The fallback path is manual CSV export from the browser.
 
-Put returned CSV files into a local folder, for example `survey_responses/`, then run:
+The public site includes only blind survey items and assignments. Keep the
+original blind key file private to the project owner.
+
+Download backend responses:
+
+```bash
+curl -fsSL "https://bcfs-survey-api.zywang.workers.dev/api/export.csv" \
+  -o outputs/human_eval_pairs/survey_responses_backend_raw.csv
+```
+
+Decode A/B labels with the private blind key:
+
+```bash
+python3 scripts/merge_survey_responses.py \
+  --responses_csv outputs/human_eval_pairs/survey_responses_backend_raw.csv \
+  --blind_key outputs/human_eval_pairs/human_eval_100_pairs_blind_key.jsonl \
+  --out_csv outputs/human_eval_pairs/merged_survey_responses.csv
+```
+
+If you collect fallback CSV files, put them into a local folder, for example
+`survey_responses/`, then run:
 
 ```bash
 python3 scripts/merge_survey_responses.py \

@@ -6,6 +6,8 @@ const dimensions = [
   { id: "conciseness", label: "Conciseness" },
 ];
 
+const API_BASE_URL = "https://bcfs-survey-api.zywang.workers.dev";
+
 let items = [];
 let assignments = {};
 let currentAnnotator = "";
@@ -191,6 +193,7 @@ function renderProgress() {
   const total = assignedItems.length;
   $("progressCount").textContent = `${done} / ${total}`;
   $("progressBar").style.width = total ? `${(done / total) * 100}%` : "0";
+  $("submitButton").disabled = !currentAnnotator || done !== total;
 }
 
 function chooseAnnotator(annotator) {
@@ -265,6 +268,63 @@ function exportCsv() {
   showStatus(`Exported ${assignedItems.length} rows for ${currentAnnotator}.`);
 }
 
+function buildSubmissionRows() {
+  return assignedItems.map((item) => {
+    const response = responses[item.eval_id] || {};
+    return {
+      annotator_id: currentAnnotator,
+      eval_id: item.eval_id,
+      task: item.task,
+      sample_id: item.sample_id,
+      preference: response.preference || "",
+      A_consistency: response.A_consistency || "",
+      A_currency: response.A_currency || "",
+      A_relevance: response.A_relevance || "",
+      A_clarity: response.A_clarity || "",
+      A_conciseness: response.A_conciseness || "",
+      B_consistency: response.B_consistency || "",
+      B_currency: response.B_currency || "",
+      B_relevance: response.B_relevance || "",
+      B_clarity: response.B_clarity || "",
+      B_conciseness: response.B_conciseness || "",
+      comment: response.comment || "",
+    };
+  });
+}
+
+async function submitResponses() {
+  collectFormResponse();
+  if (!currentAnnotator) return;
+  const done = completedCount();
+  if (done !== assignedItems.length) {
+    showStatus(`Submit blocked: finish all ${assignedItems.length} items first.`);
+    return;
+  }
+
+  $("submitButton").disabled = true;
+  showStatus("Submitting responses...");
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/responses`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        annotator_id: currentAnnotator,
+        responses: buildSubmissionRows(),
+      }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.ok) {
+      throw new Error(result.error || `HTTP ${response.status}`);
+    }
+    localStorage.setItem(`${storageKey()}_submitted_at`, new Date().toISOString());
+    showStatus(`Submitted ${result.saved_count} responses. You can close this page.`);
+  } catch (error) {
+    showStatus(`Submit failed: ${error.message}. Use Export CSV as backup.`);
+  } finally {
+    renderProgress();
+  }
+}
+
 async function copyLink() {
   if (!currentAnnotator) return;
   try {
@@ -297,6 +357,7 @@ async function init() {
 
   select.addEventListener("change", () => chooseAnnotator(select.value));
   $("copyLinkButton").addEventListener("click", copyLink);
+  $("submitButton").addEventListener("click", submitResponses);
   $("exportButton").addEventListener("click", exportCsv);
   $("prevButton").addEventListener("click", () => {
     collectFormResponse();
