@@ -33,6 +33,11 @@ function getAnnotatorFromUrl() {
   return params.get("annotator") || "";
 }
 
+function shouldResetLocalDraft() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("reset_local") === "1";
+}
+
 function setAnnotatorInUrl(annotator) {
   const url = new URL(window.location.href);
   if (annotator) {
@@ -45,6 +50,11 @@ function setAnnotatorInUrl(annotator) {
 
 function loadResponses() {
   if (!currentAnnotator) return {};
+  if (shouldResetLocalDraft()) {
+    localStorage.removeItem(storageKey());
+    localStorage.removeItem(`${storageKey()}_submitted_at`);
+    return {};
+  }
   try {
     return JSON.parse(localStorage.getItem(storageKey()) || "{}");
   } catch {
