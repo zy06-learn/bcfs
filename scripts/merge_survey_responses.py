@@ -31,6 +31,18 @@ def decode_preference(preference: str, key_row: dict[str, str]) -> str:
     return ""
 
 
+def preferred_summary_label(preference: str) -> str:
+    if preference == "A_better":
+        return "summary_A"
+    if preference == "B_better":
+        return "summary_B"
+    if preference == "same":
+        return "same"
+    if preference == "not_sure":
+        return "not_sure"
+    return ""
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--responses_dir")
@@ -59,6 +71,10 @@ def main() -> int:
                 else:
                     row["summary_A_source"] = key_row["summary_A_source"]
                     row["summary_B_source"] = key_row["summary_B_source"]
+                    row["summary_A_owner"] = key_row["summary_A_source"]
+                    row["summary_B_owner"] = key_row["summary_B_source"]
+                    row["preferred_summary_label"] = preferred_summary_label(row.get("preference", ""))
+                    row["preferred_summary_owner"] = decode_preference(row.get("preference", ""), key_row)
                     row["decoded_preference"] = decode_preference(row.get("preference", ""), key_row)
                     row["decode_error"] = ""
                 row["response_file"] = str(path)
@@ -75,6 +91,10 @@ def main() -> int:
         "preference",
         "summary_A_source",
         "summary_B_source",
+        "summary_A_owner",
+        "summary_B_owner",
+        "preferred_summary_label",
+        "preferred_summary_owner",
         "decoded_preference",
         "A_consistency",
         "A_currency",
