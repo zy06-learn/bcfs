@@ -1,0 +1,170 @@
+{
+  "item_count": 100,
+  "annotator_count": 20,
+  "annotations_per_item": 3,
+  "total_assignments": 300,
+  "min_item_annotations": 3,
+  "max_item_annotations": 3,
+  "annotators": [
+    {
+      "annotator": "annotator_01",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 8,
+        "llama_cnn": 7
+      }
+    },
+    {
+      "annotator": "annotator_02",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 8,
+        "llama_cnn": 7
+      }
+    },
+    {
+      "annotator": "annotator_03",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 8,
+        "llama_cnn": 7
+      }
+    },
+    {
+      "annotator": "annotator_04",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 8,
+        "llama_cnn": 7
+      }
+    },
+    {
+      "annotator": "annotator_05",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 8,
+        "llama_cnn": 7
+      }
+    },
+    {
+      "annotator": "annotator_06",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 8,
+        "llama_cnn": 7
+      }
+    },
+    {
+      "annotator": "annotator_07",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 8,
+        "llama_cnn": 7
+      }
+    },
+    {
+      "annotator": "annotator_08",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 8,
+        "llama_cnn": 7
+      }
+    },
+    {
+      "annotator": "annotator_09",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 8,
+        "llama_cnn": 7
+      }
+    },
+    {
+      "annotator": "annotator_10",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 8,
+        "llama_cnn": 7
+      }
+    },
+    {
+      "annotator": "annotator_11",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 7,
+        "llama_cnn": 8
+      }
+    },
+    {
+      "annotator": "annotator_12",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 7,
+        "llama_cnn": 8
+      }
+    },
+    {
+      "annotator": "annotator_13",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 7,
+        "llama_cnn": 8
+      }
+    },
+    {
+      "annotator": "annotator_14",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 7,
+        "llama_cnn": 8
+      }
+    },
+    {
+      "annotator": "annotator_15",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 7,
+        "llama_cnn": 8
+      }
+    },
+    {
+      "annotator": "annotator_16",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 7,
+        "llama_cnn": 8
+      }
+    },
+    {
+      "annotator": "annotator_17",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 7,
+        "llama_cnn": 8
+      }
+    },
+    {
+      "annotator": "annotator_18",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 7,
+        "llama_cnn": 8
+      }
+    },
+    {
+      "annotator": "annotator_19",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 7,
+        "llama_cnn": 8
+      }
+    },
+    {
+      "annotator": "annotator_20",
+      "total": 15,
+      "task_counts": {
+        "bart_cnn": 7,
+        "llama_cnn": 8
+      }
+    }
+  ]
+}

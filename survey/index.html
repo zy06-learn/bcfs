@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Summary Evaluation Survey</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Summary Evaluation</h1>
+        <p id="annotatorLabel">Select an annotator to begin.</p>
+      </div>
+      <div class="top-actions">
+        <select id="annotatorSelect" aria-label="Annotator"></select>
+        <button id="copyLinkButton" type="button">Copy Link</button>
+        <button id="exportButton" type="button">Export CSV</button>
+      </div>
+      <div id="statusMessage" class="status-message" aria-live="polite"></div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar">
+        <div class="progress-block">
+          <div class="progress-count" id="progressCount">0 / 0</div>
+          <div class="progress-track"><div id="progressBar"></div></div>
+        </div>
+        <nav id="itemNav" class="item-nav" aria-label="Assigned items"></nav>
+      </aside>
+
+      <section class="workspace">
+        <div id="emptyState" class="empty-state">
+          Choose your annotator ID from the top right menu.
+        </div>
+
+        <form id="surveyForm" class="survey-form hidden">
+          <div class="item-head">
+            <div>
+              <div id="itemMeta" class="meta"></div>
+              <h2 id="itemTitle"></h2>
+            </div>
+            <div class="nav-actions">
+              <button id="prevButton" type="button">Previous</button>
+              <button id="nextButton" type="button">Next</button>
+            </div>
+          </div>
+
+          <section class="text-section">
+            <h3>Source Article</h3>
+            <div id="sourceText" class="long-text"></div>
+          </section>
+
+          <section class="text-section">
+            <h3>Reference Summary</h3>
+            <div id="referenceSummary" class="summary-text"></div>
+          </section>
+
+          <div class="summary-grid">
+            <section class="text-section">
+              <h3>Summary A</h3>
+              <div id="summaryA" class="summary-text"></div>
+            </section>
+            <section class="text-section">
+              <h3>Summary B</h3>
+              <div id="summaryB" class="summary-text"></div>
+            </section>
+          </div>
+
+          <section class="rating-section">
+            <h3>Pairwise Preference</h3>
+            <div class="choice-row">
+              <label><input type="radio" name="preference" value="A_better" /> A better</label>
+              <label><input type="radio" name="preference" value="B_better" /> B better</label>
+              <label><input type="radio" name="preference" value="same" /> Same</label>
+              <label><input type="radio" name="preference" value="not_sure" /> Not sure</label>
+            </div>
+          </section>
+
+          <section class="rating-section">
+            <h3>Rate Summary A</h3>
+            <div id="ratingsA" class="ratings"></div>
+          </section>
+
+          <section class="rating-section">
+            <h3>Rate Summary B</h3>
+            <div id="ratingsB" class="ratings"></div>
+          </section>
+
+          <section class="rating-section">
+            <h3>Optional Comment</h3>
+            <textarea id="comment" rows="3" placeholder="Optional notes about factual errors, missing details, or unclear wording."></textarea>
+          </section>
+        </form>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
