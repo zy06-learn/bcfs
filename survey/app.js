@@ -15,6 +15,7 @@ let assignedItems = [];
 let currentIndex = 0;
 let responses = {};
 let isSubmitting = false;
+let submittedEvalIds = new Set();
 
 const $ = (id) => document.getElementById(id);
 
@@ -151,7 +152,9 @@ function renderCurrentItem() {
   if (!item) {
     $("surveyForm").classList.add("hidden");
     $("emptyState").classList.remove("hidden");
-    $("emptyState").textContent = "No assigned items found for this annotator.";
+    $("emptyState").textContent = currentAnnotator
+      ? "All assigned items have been submitted for this annotator."
+      : "No assigned items found for this annotator.";
     return;
   }
   $("emptyState").classList.add("hidden");
@@ -195,16 +198,40 @@ function renderProgress() {
   $("submitButton").disabled = !currentAnnotator || isSubmitting;
 }
 
-function chooseAnnotator(annotator) {
+async function fetchSubmittedEvalIds(annotator) {
+  if (!annotator) return new Set();
+  const response = await fetch(`${API_BASE_URL}/api/submitted?annotator_id=${encodeURIComponent(annotator)}`);
+  if (!response.ok) {
+    throw new Error(`failed to load submitted items: HTTP ${response.status}`);
+  }
+  const result = await response.json();
+  if (!result.ok) {
+    throw new Error(result.error || "failed to load submitted items");
+  }
+  return new Set(result.submitted_eval_ids || []);
+}
+
+async function chooseAnnotator(annotator) {
   currentAnnotator = annotator;
   setAnnotatorInUrl(annotator);
   showStatus("");
   responses = loadResponses();
+  submittedEvalIds = new Set();
   const itemById = new Map(items.map((item) => [item.eval_id, item]));
-  assignedItems = (assignments[annotator] || []).map((id) => itemById.get(id)).filter(Boolean);
+  if (annotator) {
+    try {
+      submittedEvalIds = await fetchSubmittedEvalIds(annotator);
+    } catch (error) {
+      showStatus(`${error.message}. Showing local remaining items only.`, 10000);
+    }
+  }
+  assignedItems = (assignments[annotator] || [])
+    .filter((id) => !submittedEvalIds.has(id))
+    .map((id) => itemById.get(id))
+    .filter(Boolean);
   currentIndex = 0;
   $("annotatorLabel").textContent = annotator
-    ? `${annotator}: ${assignedItems.length} assigned items`
+    ? `${annotator}: ${assignedItems.length} remaining items`
     : "Select an annotator to begin.";
   $("annotatorSelect").value = annotator;
   renderCurrentItem();
@@ -322,7 +349,12 @@ async function submitResponses() {
       throw new Error(result.error || `HTTP ${response.status}`);
     }
     localStorage.setItem(`${storageKey()}_submitted_at`, new Date().toISOString());
-    const remaining = assignedItems.length - completedCount();
+    const submittedIds = new Set(submissionRows.map((row) => row.eval_id));
+    assignedItems = assignedItems.filter((item) => !submittedIds.has(item.eval_id));
+    currentIndex = Math.min(currentIndex, Math.max(assignedItems.length - 1, 0));
+    const remaining = assignedItems.length;
+    $("annotatorLabel").textContent = `${currentAnnotator}: ${assignedItems.length} remaining items`;
+    renderCurrentItem();
     if (remaining) {
       showStatus(
         `Submitted ${result.saved_count} completed response${result.saved_count === 1 ? "" : "s"}. ${remaining} item${remaining === 1 ? "" : "s"} still incomplete.`,
@@ -386,7 +418,7 @@ async function init() {
   $("surveyForm").addEventListener("change", collectFormResponse);
   $("comment").addEventListener("input", collectFormResponse);
 
-  chooseAnnotator(getAnnotatorFromUrl());
+  await chooseAnnotator(getAnnotatorFromUrl());
 }
 
 init().catch((error) => {

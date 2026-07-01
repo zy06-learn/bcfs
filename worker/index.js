@@ -239,6 +239,24 @@ async function exportCsv(request, env) {
   });
 }
 
+async function submittedResponses(request, env) {
+  const url = new URL(request.url);
+  const annotatorId = String(url.searchParams.get("annotator_id") || "");
+  if (!annotatorId || !ASSIGNMENTS[annotatorId]) {
+    return jsonResponse(request, { ok: false, error: `unknown annotator_id: ${annotatorId}` }, 400);
+  }
+  const { results } = await env.DB.prepare(
+    "SELECT eval_id, submitted_at FROM survey_responses WHERE annotator_id = ? ORDER BY eval_id"
+  ).bind(annotatorId).all();
+  return jsonResponse(request, {
+    ok: true,
+    annotator_id: annotatorId,
+    submitted_eval_ids: results.map((row) => row.eval_id),
+    submitted_count: results.length,
+    expected_count: ASSIGNMENTS[annotatorId].length,
+  });
+}
+
 async function health(request, env) {
   const row = await env.DB.prepare("SELECT COUNT(*) AS count FROM survey_responses").first();
   const completed = await env.DB.prepare(
@@ -263,6 +281,9 @@ export default {
     }
     if (url.pathname === "/api/health" && request.method === "GET") {
       return health(request, env);
+    }
+    if (url.pathname === "/api/submitted" && request.method === "GET") {
+      return submittedResponses(request, env);
     }
     if (url.pathname === "/api/responses" && request.method === "POST") {
       return saveResponses(request, env);
