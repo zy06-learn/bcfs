@@ -1,4 +1,5 @@
 import { ASSIGNMENTS, SURVEY_ITEMS } from "./survey_data.js";
+import { BLIND_KEY } from "./blind_key.js";
 
 const ALLOWED_ORIGIN = "https://zy06-learn.github.io";
 const LOCAL_ORIGIN_RE = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
@@ -34,6 +35,31 @@ const REEVAL_CSV_FIELDS = [
   "sample_id",
   "original_preference",
   "reeval_preference",
+  "A_consistency",
+  "A_currency",
+  "A_relevance",
+  "A_clarity",
+  "A_conciseness",
+  "B_consistency",
+  "B_currency",
+  "B_relevance",
+  "B_clarity",
+  "B_conciseness",
+  "comment",
+  "submitted_at",
+];
+
+const CORRECTED_CSV_FIELDS = [
+  "annotator_id",
+  "eval_id",
+  "task",
+  "sample_id",
+  "preference",
+  "summary_A_source",
+  "summary_B_source",
+  "preferred_summary_label",
+  "decoded_preference",
+  "label_correction",
   "A_consistency",
   "A_currency",
   "A_relevance",
@@ -289,6 +315,75 @@ function csvEscape(value) {
   return `"${text.replaceAll('"', '""')}"`;
 }
 
+function swapSource(source) {
+  if (source === "baseline") return "co";
+  if (source === "co") return "baseline";
+  return source || "";
+}
+
+function correctedSource(evalId, side) {
+  const key = BLIND_KEY[evalId];
+  if (!key) return "";
+  return swapSource(key[`summary_${side}_source`]);
+}
+
+function preferredSummaryLabel(preference) {
+  if (preference === "A_better") return "summary_A";
+  if (preference === "B_better") return "summary_B";
+  if (preference === "same" || preference === "not_sure") return preference;
+  return "";
+}
+
+function decodeCorrectedPreference(row) {
+  if (row.preference === "A_better") return correctedSource(row.eval_id, "A");
+  if (row.preference === "B_better") return correctedSource(row.eval_id, "B");
+  if (row.preference === "same" || row.preference === "not_sure") return row.preference;
+  return "";
+}
+
+function correctedRow(row) {
+  return {
+    ...row,
+    summary_A_source: correctedSource(row.eval_id, "A"),
+    summary_B_source: correctedSource(row.eval_id, "B"),
+    preferred_summary_label: preferredSummaryLabel(row.preference),
+    decoded_preference: decodeCorrectedPreference(row),
+    label_correction: "baseline_co_swapped",
+  };
+}
+
+function countBy(rows, field) {
+  const counts = {};
+  for (const row of rows) {
+    const key = row[field] || "";
+    counts[key] = (counts[key] || 0) + 1;
+  }
+  return counts;
+}
+
+function mean(values) {
+  if (!values.length) return null;
+  return Math.round((values.reduce((sum, value) => sum + value, 0) / values.length) * 1000) / 1000;
+}
+
+function ownerMetricValue(row, owner, dimension) {
+  if (row.summary_A_source === owner) return row[`A_${dimension}`];
+  if (row.summary_B_source === owner) return row[`B_${dimension}`];
+  return null;
+}
+
+function ratingMeans(rows, owner) {
+  const result = {};
+  for (const dimension of DIMENSIONS) {
+    const values = rows
+      .map((row) => ownerMetricValue(row, owner, dimension))
+      .filter((value) => value != null)
+      .map((value) => Number(value));
+    result[dimension] = { mean: mean(values), n: values.length };
+  }
+  return result;
+}
+
 async function exportCsv(request, env) {
   const { results } = await env.DB.prepare(
     "SELECT * FROM survey_responses ORDER BY annotator_id, eval_id"
@@ -302,6 +397,56 @@ async function exportCsv(request, env) {
       "Content-Type": "text/csv; charset=utf-8",
       "Content-Disposition": 'attachment; filename="survey_responses.csv"',
       ...corsHeaders(request),
+    },
+  });
+}
+
+async function correctedRows(env) {
+  const { results } = await env.DB.prepare(
+    "SELECT * FROM survey_responses ORDER BY annotator_id, eval_id"
+  ).all();
+  return results.map(correctedRow);
+}
+
+async function correctedExportCsv(request, env) {
+  const rows = await correctedRows(env);
+  const lines = [CORRECTED_CSV_FIELDS.join(",")];
+  for (const row of rows) {
+    lines.push(CORRECTED_CSV_FIELDS.map((field) => csvEscape(row[field])).join(","));
+  }
+  return new Response(`${lines.join("\n")}\n`, {
+    headers: {
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": 'attachment; filename="survey_responses_corrected.csv"',
+      ...corsHeaders(request),
+    },
+  });
+}
+
+async function correctedStats(request, env) {
+  const rows = await correctedRows(env);
+  const byTask = {};
+  for (const task of [...new Set(rows.map((row) => row.task))].sort()) {
+    byTask[task] = countBy(rows.filter((row) => row.task === task), "decoded_preference");
+  }
+  const byAnnotator = {};
+  for (const annotatorId of [...new Set(rows.map((row) => row.annotator_id))].sort()) {
+    const annotatorRows = rows.filter((row) => row.annotator_id === annotatorId);
+    byAnnotator[annotatorId] = {
+      total: annotatorRows.length,
+      ...countBy(annotatorRows, "decoded_preference"),
+    };
+  }
+  return jsonResponse(request, {
+    ok: true,
+    label_correction: "baseline_co_swapped",
+    input_rows: rows.length,
+    overall_decoded_preference: countBy(rows, "decoded_preference"),
+    by_task_decoded_preference: byTask,
+    by_annotator_decoded_preference: byAnnotator,
+    rating_means: {
+      baseline: ratingMeans(rows, "baseline"),
+      co: ratingMeans(rows, "co"),
     },
   });
 }
@@ -487,6 +632,12 @@ export default {
     }
     if (url.pathname === "/api/export.csv" && request.method === "GET") {
       return exportCsv(request, env);
+    }
+    if (url.pathname === "/api/corrected/export.csv" && request.method === "GET") {
+      return correctedExportCsv(request, env);
+    }
+    if (url.pathname === "/api/corrected/stats" && request.method === "GET") {
+      return correctedStats(request, env);
     }
     return jsonResponse(request, { ok: false, error: "not_found" }, 404);
   },
