@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 .venv/
+node_modules/
 logs/
 results/runs/
 results/**/*.partial.txt
