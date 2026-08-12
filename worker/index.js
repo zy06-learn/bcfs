@@ -80,11 +80,50 @@ function corsHeaders(request) {
     return {
       "Access-Control-Allow-Origin": origin,
       "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Headers": "Authorization, Content-Type",
       "Vary": "Origin",
     };
   }
   return {};
+}
+
+const ADMIN_ROUTES = new Set([
+  "GET /api/export.csv",
+  "GET /api/corrected/export.csv",
+  "GET /api/corrected/stats",
+  "GET /api/reeval/items",
+  "POST /api/reeval/responses",
+  "GET /api/reeval/export.csv",
+]);
+
+export function requiresAdmin(method, pathname) {
+  return ADMIN_ROUTES.has(`${method.toUpperCase()} ${pathname}`);
+}
+
+export function authorizeAdmin(request, env) {
+  const token = typeof env?.SURVEY_ADMIN_TOKEN === "string"
+    ? env.SURVEY_ADMIN_TOKEN.trim()
+    : "";
+  if (!token) {
+    return { ok: false, status: 503, error: "admin_auth_not_configured" };
+  }
+  const header = request.headers.get("Authorization") || "";
+  if (!header.startsWith("Bearer ") || !constantTimeEqual(header.slice(7), token)) {
+    return { ok: false, status: 401, error: "admin_authorization_required" };
+  }
+  return { ok: true };
+}
+
+function constantTimeEqual(left, right) {
+  const encoder = new TextEncoder();
+  const leftBytes = encoder.encode(left);
+  const rightBytes = encoder.encode(right);
+  let difference = leftBytes.length ^ rightBytes.length;
+  const length = Math.max(leftBytes.length, rightBytes.length);
+  for (let index = 0; index < length; index += 1) {
+    difference |= (leftBytes[index] || 0) ^ (rightBytes[index] || 0);
+  }
+  return difference === 0;
 }
 
 function jsonResponse(request, value, status = 200) {
@@ -606,11 +645,21 @@ async function health(request, env) {
   });
 }
 
-export default {
+export const worker = {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: corsHeaders(request) });
+    }
+    if (requiresAdmin(request.method, url.pathname)) {
+      const authorization = authorizeAdmin(request, env);
+      if (!authorization.ok) {
+        return jsonResponse(
+          request,
+          { ok: false, error: authorization.error },
+          authorization.status
+        );
+      }
     }
     if (url.pathname === "/api/health" && request.method === "GET") {
       return health(request, env);
@@ -642,3 +691,5 @@ export default {
     return jsonResponse(request, { ok: false, error: "not_found" }, 404);
   },
 };
+
+export default worker;

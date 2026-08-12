@@ -15,6 +15,9 @@ bert_score-master/
 DPPy-master/
 .codex_tmp/
 .wrangler/
+.env
+.env.*
+!.env.example
 *.tex
 *.bib
 latex/

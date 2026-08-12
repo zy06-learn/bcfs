@@ -13,6 +13,13 @@
         <p id="annotatorLabel">Select an annotator to re-evaluate submitted items.</p>
       </div>
       <div class="top-actions">
+        <input
+          id="adminTokenInput"
+          type="password"
+          aria-label="Admin token"
+          placeholder="Admin token"
+          autocomplete="off"
+        />
         <input id="reviewerInput" aria-label="Reviewer" placeholder="reviewer_01" />
         <select id="annotatorSelect" aria-label="Annotator"></select>
         <button id="copyLinkButton" type="button">Copy Link</button>
@@ -102,6 +109,6 @@
       </section>
     </main>
 
-    <script src="reeval.js?v=0003"></script>
+    <script src="reeval.js?v=0004"></script>
   </body>
 </html>

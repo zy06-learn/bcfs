@@ -141,7 +141,12 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--root", default="/home/zeyu/projects/NLP_ilp_dpp_mmr_experiment")
+    parser.add_argument(
+        "--root",
+        type=Path,
+        default=Path.cwd(),
+        help="Experiment repository root (default: current working directory).",
+    )
     parser.add_argument("--out_dir", default="outputs/machine_judge_500_pairs")
     parser.add_argument("--n_per_task", type=int, default=250)
     parser.add_argument("--seed", type=int, default=42)

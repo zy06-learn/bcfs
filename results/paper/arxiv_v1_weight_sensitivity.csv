@@ -1,0 +1,17 @@
+dataset,model,profile,w_coverage,w_factuality,w_redundancy,rougeLsum,factcc,minicheck,alignscore,factkb,faithlens,beam
+CNN/DailyMail,BART+DPP,Balanced,0.33,0.33,0.34,23.43,74.33,97.51,92.09,99.59,98.60,8
+CNN/DailyMail,BART+DPP,Coverage,0.60,0.20,0.20,21.01,73.25,96.96,91.45,99.46,98.40,8
+CNN/DailyMail,BART+DPP,Faithfulness,0.20,0.60,0.20,23.12,74.67,97.63,92.60,99.50,98.40,8
+CNN/DailyMail,BART+DPP,Diversity,0.20,0.20,0.60,26.24,73.37,97.35,91.99,99.35,98.40,8
+CNN/DailyMail,Llama-3-8B+DPP,Balanced,0.33,0.33,0.34,19.54,48.81,86.23,81.26,99.43,98.00,8
+CNN/DailyMail,Llama-3-8B+DPP,Coverage,0.60,0.20,0.20,19.00,46.57,80.98,78.96,99.52,98.00,8
+CNN/DailyMail,Llama-3-8B+DPP,Faithfulness,0.20,0.60,0.20,19.02,50.01,87.81,82.00,99.43,98.60,8
+CNN/DailyMail,Llama-3-8B+DPP,Diversity,0.20,0.20,0.60,20.48,48.42,85.55,80.87,99.22,98.00,8
+Multi-News,PRIMERA+DPP,Balanced,0.33,0.33,0.34,33.43,42.31,79.37,65.59,97.80,78.40,8
+Multi-News,PRIMERA+DPP,Coverage,0.60,0.20,0.20,33.64,39.32,75.71,62.58,98.36,78.80,8
+Multi-News,PRIMERA+DPP,Faithfulness,0.20,0.60,0.20,32.83,43.75,80.43,66.41,97.48,77.00,8
+Multi-News,PRIMERA+DPP,Diversity,0.20,0.20,0.60,34.64,42.06,79.08,65.28,97.71,76.60,8
+Multi-News,Llama-3-8B+DPP,Balanced,0.33,0.33,0.34,30.41,52.60,78.22,68.94,97.98,93.20,8
+Multi-News,Llama-3-8B+DPP,Coverage,0.60,0.20,0.20,30.85,50.61,73.79,66.93,97.80,92.60,8
+Multi-News,Llama-3-8B+DPP,Faithfulness,0.20,0.60,0.20,29.59,53.63,79.25,69.80,98.24,94.00,8
+Multi-News,Llama-3-8B+DPP,Diversity,0.20,0.20,0.60,31.26,52.23,77.16,68.61,97.51,92.00,8

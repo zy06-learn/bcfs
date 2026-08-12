@@ -1,13 +1,19 @@
-torch
-transformers
-datasets
-evaluate
-rouge-score
-nltk
-pysbd
-pulp
-numpy
-bert-score
-matplotlib
-tqdm
-scikit-learn
+# Maintained release environment for Python 3.11. Hardware-specific CUDA
+# packages may be supplied by the host instead of the default PyTorch wheel.
+torch>=2.2,<3
+transformers>=4.57,<6
+datasets>=2.18,<5
+evaluate>=0.4,<1
+accelerate>=0.33,<2
+safetensors>=0.4,<1
+sentencepiece>=0.2,<1
+protobuf>=4.25,<7
+rouge-score==0.1.2
+nltk>=3.8,<4
+pysbd==0.3.4
+pulp>=2.8,<4
+numpy>=1.26,<3
+bert-score==0.3.13
+matplotlib>=3.8,<4
+tqdm>=4.66,<5
+scikit-learn>=1.4,<2

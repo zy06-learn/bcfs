@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { ASSIGNMENTS } from "../worker/survey_data.js";
-import { validateAnnotatorSubmission, validateReevaluation, validateResponse } from "../worker/index.js";
+import worker, {
+  authorizeAdmin,
+  requiresAdmin,
+  validateAnnotatorSubmission,
+  validateReevaluation,
+  validateResponse,
+} from "../worker/index.js";
 
 const annotatorId = "annotator_01";
 const evalId = ASSIGNMENTS[annotatorId][0];
@@ -81,5 +87,54 @@ assert.equal(
   validateAnnotatorSubmission({ annotator_id: otherAnnotator, responses: completeRows }, completeRows).ok,
   false
 );
+
+const adminToken = "unit-test-placeholder";
+const adminEnv = { SURVEY_ADMIN_TOKEN: adminToken };
+const requestFor = (path, token, method = "GET") => new Request(`https://example.test${path}`, {
+  method,
+  headers: token == null ? {} : { Authorization: `Bearer ${token}` },
+});
+
+assert.equal(requiresAdmin("GET", "/api/export.csv"), true);
+assert.equal(requiresAdmin("GET", "/api/corrected/stats"), true);
+assert.equal(requiresAdmin("GET", "/api/reeval/items"), true);
+assert.equal(requiresAdmin("POST", "/api/reeval/responses"), true);
+assert.equal(requiresAdmin("GET", "/api/health"), false);
+assert.equal(requiresAdmin("POST", "/api/responses"), false);
+assert.deepEqual(
+  authorizeAdmin(requestFor("/api/export.csv"), {}),
+  { ok: false, status: 503, error: "admin_auth_not_configured" }
+);
+assert.deepEqual(
+  authorizeAdmin(requestFor("/api/export.csv", "wrong"), adminEnv),
+  { ok: false, status: 401, error: "admin_authorization_required" }
+);
+assert.deepEqual(
+  authorizeAdmin(requestFor("/api/export.csv", `${adminToken}-suffix`), adminEnv),
+  { ok: false, status: 401, error: "admin_authorization_required" }
+);
+assert.deepEqual(authorizeAdmin(requestFor("/api/export.csv", adminToken), adminEnv), { ok: true });
+
+const unconfigured = await worker.fetch(requestFor("/api/export.csv"), {});
+assert.equal(unconfigured.status, 503);
+assert.equal((await unconfigured.json()).error, "admin_auth_not_configured");
+const unauthorized = await worker.fetch(requestFor("/api/corrected/stats", "wrong"), adminEnv);
+assert.equal(unauthorized.status, 401);
+assert.equal((await unauthorized.json()).error, "admin_authorization_required");
+
+let databaseWasRead = false;
+const protectedEnv = {
+  ...adminEnv,
+  DB: {
+    prepare() {
+      databaseWasRead = true;
+      return { all: async () => ({ results: [] }) };
+    },
+  },
+};
+const authorized = await worker.fetch(requestFor("/api/export.csv", adminToken), protectedEnv);
+assert.equal(authorized.status, 200);
+assert.equal(databaseWasRead, true);
+assert.match(await authorized.text(), /^annotator_id,/);
 
 console.log("worker_validation_ok");

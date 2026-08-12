@@ -1,0 +1,9 @@
+section,group,dpp,direct,same,unsure,delta,scale,n
+preference,BART,32,12,5,1,,,50
+preference,Llama-3-8B,29,14,5,2,,,50
+preference,Overall,61,26,10,3,,,100
+rating,Coherence,4.360,4.422,,,-0.062,1-5,
+rating,Consistency,4.466,4.034,,,+0.432,1-5,
+rating,Relevance,4.341,3.708,,,+0.633,1-5,
+rating,Clarity,4.379,3.614,,,+0.765,1-5,
+rating,Conciseness,4.218,3.326,,,+0.892,1-5,

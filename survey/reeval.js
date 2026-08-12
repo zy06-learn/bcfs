@@ -17,8 +17,23 @@ let currentIndex = 0;
 let originalResponses = {};
 let responses = {};
 let isSubmitting = false;
+let adminToken = "";
 
 const $ = (id) => document.getElementById(id);
+
+function adminHeaders(json = false) {
+  const headers = { Authorization: `Bearer ${adminToken}` };
+  if (json) headers["Content-Type"] = "application/json";
+  return headers;
+}
+
+async function readApiResult(response) {
+  const result = await response.json();
+  if (!response.ok || !result.ok) {
+    throw new Error(result.error || `HTTP ${response.status}`);
+  }
+  return result;
+}
 
 function getParams() {
   const params = new URLSearchParams(window.location.search);
@@ -199,18 +214,15 @@ function renderProgress() {
 
 async function fetchReevalItems(annotator) {
   const url = `${API_BASE_URL}/api/reeval/items?annotator_id=${encodeURIComponent(annotator)}&reviewer_id=${encodeURIComponent(reviewerId)}`;
-  const response = await fetch(url);
-  const result = await response.json();
-  if (!response.ok || !result.ok) {
-    throw new Error(result.error || `HTTP ${response.status}`);
-  }
-  return result;
+  const response = await fetch(url, { headers: adminHeaders() });
+  return readApiResult(response);
 }
 
 async function chooseAnnotator(annotator) {
   collectFormResponse();
   currentAnnotator = annotator;
   reviewerId = $("reviewerInput").value.trim() || "reviewer_01";
+  adminToken = $("adminTokenInput").value;
   setParams();
   showStatus("");
   originalResponses = {};
@@ -218,6 +230,12 @@ async function chooseAnnotator(annotator) {
   assignedItems = [];
   const itemById = new Map(items.map((item) => [item.eval_id, item]));
   if (annotator) {
+    if (!adminToken) {
+      $("annotatorLabel").textContent = "Enter the admin token before loading re-evaluation data.";
+      $("annotatorSelect").value = annotator;
+      renderCurrentItem();
+      return;
+    }
     const result = await fetchReevalItems(annotator);
     for (const row of result.original_responses || []) {
       originalResponses[row.eval_id] = row;
@@ -269,7 +287,7 @@ async function submitResponses() {
   try {
     const response = await fetch(`${API_BASE_URL}/api/reeval/responses`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: adminHeaders(true),
       body: JSON.stringify({
         reviewer_id: reviewerId,
         annotator_id: currentAnnotator,
@@ -299,8 +317,32 @@ async function copyLink() {
   }
 }
 
-function exportCsv() {
-  window.open(`${API_BASE_URL}/api/reeval/export.csv`, "_blank", "noopener");
+async function exportCsv() {
+  adminToken = $("adminTokenInput").value;
+  if (!adminToken) {
+    showStatus("Enter the admin token before exporting.", 8000);
+    return;
+  }
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/reeval/export.csv`, {
+      headers: adminHeaders(),
+    });
+    if (!response.ok) {
+      await readApiResult(response);
+    }
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "survey_reevaluations.csv";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    showStatus("Exported re-evaluation responses.");
+  } catch (error) {
+    showStatus(`Export failed: ${error.message}`, 12000);
+  }
 }
 
 async function init() {
@@ -326,6 +368,7 @@ async function init() {
   });
 
   select.addEventListener("change", () => chooseAnnotator(select.value));
+  $("adminTokenInput").addEventListener("change", () => chooseAnnotator(currentAnnotator));
   $("reviewerInput").addEventListener("change", () => chooseAnnotator(currentAnnotator));
   $("copyLinkButton").addEventListener("click", copyLink);
   $("submitButton").addEventListener("click", submitResponses);

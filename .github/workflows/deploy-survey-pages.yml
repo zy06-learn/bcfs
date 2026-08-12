@@ -1,12 +1,6 @@
 name: Deploy Human-Eval Survey Pages
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "survey/**"
-      - ".github/workflows/deploy-survey-pages.yml"
   workflow_dispatch:
 
 permissions:

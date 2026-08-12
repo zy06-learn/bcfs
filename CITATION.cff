@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use this software or its artifacts, please cite the paper below."
+title: "BCFS: Budget-Constrained Faithful Summarization"
+type: software
+authors:
+  - family-names: Wang
+    given-names: Zeyu
+  - family-names: Wang
+    given-names: Guanghua
+  - family-names: Xu
+    given-names: Meng
+repository-code: "https://github.com/zy06-learn/bcfs"
+url: "https://arxiv.org/abs/2608.03655"
+license: Apache-2.0
+version: 1.0.0
+date-released: 2026-08-04
+preferred-citation:
+  type: article
+  title: "Decoupling Generation and Selection for Budget-Constrained Faithful Summarization"
+  authors:
+    - family-names: Wang
+      given-names: Zeyu
+    - family-names: Wang
+      given-names: Guanghua
+    - family-names: Xu
+      given-names: Meng
+  year: 2026
+  journal: "arXiv preprint arXiv:2608.03655"
+  url: "https://arxiv.org/abs/2608.03655"
+  identifiers:
+    - type: other
+      value: "arXiv:2608.03655"
+      description: "arXiv identifier"

@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import argparse
 import csv
+import io
 import re
+import sys
 from pathlib import Path
 
 
@@ -165,11 +167,24 @@ def load_selected(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(handle))
 
 
+def render_csv(rows: list[dict[str, str]]) -> str:
+    buffer = io.StringIO(newline="")
+    writer = csv.DictWriter(buffer, fieldnames=FIELDNAMES, lineterminator="\n")
+    writer.writeheader()
+    writer.writerows(rows)
+    return buffer.getvalue()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--results-root", type=Path, default=DEFAULT_RESULTS_ROOT)
     parser.add_argument("--selected-rows", type=Path, default=DEFAULT_SELECTED_ROWS)
     parser.add_argument("--output-csv", type=Path, default=DEFAULT_OUTPUT_CSV)
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Verify that --output-csv is current without modifying it.",
+    )
     args = parser.parse_args()
 
     results_root = args.results_root.resolve()
@@ -192,18 +207,31 @@ def main() -> None:
         rows.append(row)
 
     rows.sort(key=lambda row: (row["dataset"], row["generator"], row["method"], row["source_result"]))
-    args.output_csv.parent.mkdir(parents=True, exist_ok=True)
-    with args.output_csv.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=FIELDNAMES, lineterminator="\n")
-        writer.writeheader()
-        writer.writerows(rows)
-
-    print(f"[collect] wrote {len(rows)} rows to {args.output_csv}")
     if missing:
         print("[collect] missing selected result files:")
         for rel in missing:
             print(f"  {rel}")
         raise SystemExit(1)
+
+    rendered = render_csv(rows)
+    if args.check:
+        if not args.output_csv.exists():
+            print(f"[collect] missing generated table: {args.output_csv}", file=sys.stderr)
+            raise SystemExit(1)
+        current = args.output_csv.read_text(encoding="utf-8")
+        if current != rendered:
+            print(
+                f"[collect] stale generated table: {args.output_csv}; "
+                "run without --check to update it",
+                file=sys.stderr,
+            )
+            raise SystemExit(1)
+        print(f"[collect] verified {len(rows)} rows in {args.output_csv}")
+        return
+
+    args.output_csv.parent.mkdir(parents=True, exist_ok=True)
+    args.output_csv.write_text(rendered, encoding="utf-8", newline="")
+    print(f"[collect] wrote {len(rows)} rows to {args.output_csv}")
 
 
 if __name__ == "__main__":

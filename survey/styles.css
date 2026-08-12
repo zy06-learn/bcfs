@@ -84,7 +84,8 @@ h3 {
 button,
 select,
 input[type="text"],
-#reviewerInput {
+#reviewerInput,
+#adminTokenInput {
   min-height: 36px;
   border: 1px solid var(--border);
   border-radius: 6px;

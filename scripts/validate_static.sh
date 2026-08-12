@@ -27,7 +27,7 @@ for base in (root / "scripts", root / "src"):
 PY
 while IFS= read -r script; do
   script="${script%$'\r'}"
-  [[ -n "$script" ]] && bash -n "$script"
+  [[ -n "$script" ]] && sed $'s/\r$//' "$script" | bash -n
 done < "$script_list"
 rm -f "$script_list"
 

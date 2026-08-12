@@ -1,87 +1,89 @@
-# Human Evaluation Survey
+# Human-Evaluation Survey Archive
 
-This folder contains the public browser survey for pairwise summary evaluation.
-Responses are submitted to the Cloudflare Worker API and can still be exported
-as CSV from the browser as a backup.
+This directory contains the static interface used for the paper's blind
+pairwise evaluation: 100 CNN/DailyMail comparisons, 50 per backbone, assigned
+once across 20 annotators. It is retained for protocol inspection and is not a
+public results database.
 
-Worker API:
+The historical UI and database use a field named `currency`. The paper reports
+the corresponding quality dimension as **coherence**. Because the stored schema
+was not renamed before data collection, the release preserves the legacy field
+name and documents the mismatch instead of silently asserting equivalence.
 
-- Health: `https://bcfs-survey-api.zywang.workers.dev/api/health`
-- Export CSV: `https://bcfs-survey-api.zywang.workers.dev/api/export.csv`
+## Privacy Boundary
 
-## Local Test
+- `survey_items.json` contains the source, reference, and blinded candidate
+  summaries shown to annotators.
+- `assignments.json` and `annotator_links.csv` contain pseudonymous assignment
+  identifiers.
+- Raw participant responses, optional comments, and database exports are not
+  committed.
+- `worker/blind_key.js` maps A/B labels to systems and therefore belongs only in
+  the backend Worker bundle, never in the Pages artifact.
+
+## Local Static Preview
 
 ```bash
 cd survey
 python3 -m http.server 8000
 ```
 
-Open `http://localhost:8000/?annotator=annotator_01`.
+Open `http://localhost:8000/?annotator=annotator_01`. Submission calls target
+the configured Cloudflare Worker; use a disposable local Worker/D1 instance if
+testing writes.
 
-## Annotator Links
+## Administrative API
 
-Send one link to each annotator. Each annotator exports a CSV after finishing.
+Participant submission/status routes remain public for the archived workflow.
+Routes that expose responses, corrected statistics, or re-evaluation data
+require this header:
 
-- `annotator_01`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_01`
-- `annotator_02`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_02`
-- `annotator_03`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_03`
-- `annotator_04`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_04`
-- `annotator_05`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_05`
-- `annotator_06`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_06`
-- `annotator_07`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_07`
-- `annotator_08`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_08`
-- `annotator_09`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_09`
-- `annotator_10`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_10`
-- `annotator_11`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_11`
-- `annotator_12`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_12`
-- `annotator_13`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_13`
-- `annotator_14`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_14`
-- `annotator_15`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_15`
-- `annotator_16`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_16`
-- `annotator_17`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_17`
-- `annotator_18`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_18`
-- `annotator_19`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_19`
-- `annotator_20`: `https://zy06-learn.github.io/bcfs/?annotator=annotator_20`
+```text
+Authorization: Bearer <SURVEY_ADMIN_TOKEN>
+```
 
-## Assignment Summary
+Protected routes are:
 
-- Items: 100
-- Annotators: 20
-- Annotations per item: 1
-- Total item assignments: 100
-- Min annotations per item: 1
-- Max annotations per item: 1
+- `GET /api/export.csv`
+- `GET /api/corrected/export.csv`
+- `GET /api/corrected/stats`
+- `GET /api/reeval/items`
+- `POST /api/reeval/responses`
+- `GET /api/reeval/export.csv`
 
-## Response Collection
-
-The primary collection path is automatic: annotators fill all assigned items and
-click `Submit`. The fallback path is manual CSV export from the browser.
-
-The public site includes only blind survey items and assignments. Keep the
-original blind key file private to the project owner.
-
-Download backend responses:
+Configure the Worker secret before deploying:
 
 ```bash
-curl -fsSL "https://bcfs-survey-api.zywang.workers.dev/api/export.csv" \
+npx wrangler secret put SURVEY_ADMIN_TOKEN
+```
+
+Example authenticated export:
+
+```bash
+curl -fsSL \
+  -H "Authorization: Bearer $SURVEY_ADMIN_TOKEN" \
+  "https://bcfs-survey-api.zywang.workers.dev/api/export.csv" \
   -o outputs/human_eval_pairs/survey_responses_backend_raw.csv
 ```
 
-Decode A/B labels with the private blind key:
+Never place the token in a URL, tracked file, browser storage, log, or shared
+annotator link. The re-evaluation page holds the entered token only in memory.
+
+## Deployment
+
+GitHub Pages deployment is manual through the `Deploy Human-Eval Survey Pages`
+workflow. A push to `main` no longer deploys the survey automatically. Review
+the Pages artifact before manually dispatching it.
+
+Worker deployment and D1 migrations are separate, externally visible actions:
 
 ```bash
-python3 scripts/merge_survey_responses.py \
-  --responses_csv outputs/human_eval_pairs/survey_responses_backend_raw.csv \
-  --blind_key outputs/human_eval_pairs/human_eval_100_pairs_blind_key.jsonl \
-  --out_csv outputs/human_eval_pairs/merged_survey_responses.csv
+npm ci
+npm run worker:test
+npm run d1:migrate:remote
+npm run worker:deploy
 ```
 
-If you collect fallback CSV files, put them into a local folder, for example
-`survey_responses/`, then run:
-
-```bash
-python3 scripts/merge_survey_responses.py \
-  --responses_dir survey_responses \
-  --blind_key outputs/human_eval_pairs/human_eval_100_pairs_blind_key.jsonl \
-  --out_csv outputs/human_eval_pairs/merged_survey_responses.csv
-```
+Run those commands only after reviewing the target Cloudflare account,
+database, migration state, and secret configuration. Preparing this release
+does not deploy either surface.
