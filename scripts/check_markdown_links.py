@@ -16,16 +16,13 @@ LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 
 def tracked_markdown() -> list[Path]:
     result = subprocess.run(
-        ["git", "ls-files", "*.md"],
+        ["git", "ls-files", "--cached", "--others", "--exclude-standard", "--", "*.md"],
         cwd=ROOT,
         check=True,
         capture_output=True,
         text=True,
     )
-    paths = [ROOT / line for line in result.stdout.splitlines() if line]
-    # Include newly created Markdown before it is staged.
-    paths.extend(path for path in ROOT.rglob("*.md") if ".git" not in path.parts)
-    return sorted(set(paths))
+    return sorted(ROOT / line for line in result.stdout.splitlines() if line)
 
 
 def local_target(raw: str) -> str | None:
